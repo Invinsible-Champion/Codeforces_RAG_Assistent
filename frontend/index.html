@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CF Assist — Codeforces RAG Assistant</title>
+    <meta name="description" content="AI-powered assistant for exploring and understanding Codeforces competitive programming problems">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- KaTeX for math rendering -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+    
+    <!-- Marked for markdown rendering -->
+    <script src="https://cdn.jsdelivr.net/npm/marked@12.0.0/marked.min.js"></script>
+    
+    <!-- Highlight.js for code blocks -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/styles/atom-one-dark.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/lib/core.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/lib/languages/cpp.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/lib/languages/python.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/lib/languages/javascript.min.js"></script>
+    
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="app">
+        <!-- Sidebar -->
+        <aside id="sidebar" class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <div class="logo-icon">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                        </svg>
+                    </div>
+                    <span class="logo-text">CF Assist</span>
+                </div>
+                <button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle sidebar">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+                    </svg>
+                </button>
+            </div>
+            
+            <button id="new-chat-btn" class="new-chat-btn">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+                </svg>
+                New Chat
+            </button>
+
+            <nav class="sidebar-nav">
+                <button class="nav-item active" data-view="chat">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                    </svg>
+                    Chat
+                </button>
+                <button class="nav-item" data-view="explorer">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+                        <rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
+                    </svg>
+                    Explorer
+                </button>
+                <button class="nav-item" data-view="ingest">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+                    </svg>
+                    Ingest
+                </button>
+            </nav>
+
+            <div class="conversation-list" id="conversation-list">
+                <div class="conversation-list-header">
+                    <span>Recent Chats</span>
+                </div>
+                <!-- Dynamically populated -->
+            </div>
+
+            <div class="sidebar-footer">
+                <div class="stats-badge" id="stats-badge">
+                    <span class="stats-dot"></span>
+                    <span id="stats-text">Loading stats...</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main id="main-content" class="main-content">
+            <!-- Chat View -->
+            <div id="chat-view" class="view active">
+                <div class="chat-container">
+                    <div id="chat-messages" class="chat-messages">
+                        <!-- Welcome Screen -->
+                        <div id="welcome-screen" class="welcome-screen">
+                            <div class="welcome-icon">
+                                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="url(#gradient)" stroke-width="1.5">
+                                    <defs>
+                                        <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                            <stop offset="0%" style="stop-color:#8b5cf6"/>
+                                            <stop offset="100%" style="stop-color:#06b6d4"/>
+                                        </linearGradient>
+                                    </defs>
+                                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                                </svg>
+                            </div>
+                            <h1 class="welcome-title">Codeforces RAG Assistant</h1>
+                            <p class="welcome-subtitle">Ask me anything about Codeforces problems — find problems by rating, tags, or topic, get explanations, hints, and recommendations.</p>
+                            
+                            <div class="quick-actions">
+                                <button class="quick-action" data-query="Give me 5 greedy problems rated 1200">
+                                    <span class="qa-icon">🎯</span>
+                                    <span class="qa-text">1200 rated greedy problems</span>
+                                </button>
+                                <button class="quick-action" data-query="Explain the approach for a classic DP problem">
+                                    <span class="qa-icon">💡</span>
+                                    <span class="qa-text">Explain a DP approach</span>
+                                </button>
+                                <button class="quick-action" data-query="Give me a difficulty progression for graph problems starting from 800">
+                                    <span class="qa-icon">📈</span>
+                                    <span class="qa-text">Graph difficulty progression</span>
+                                </button>
+                                <button class="quick-action" data-query="What are some easy binary search problems for beginners?">
+                                    <span class="qa-icon">🔍</span>
+                                    <span class="qa-text">Beginner binary search</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="chat-input-area">
+                        <div class="mode-selector">
+                            <button class="mode-btn active" data-mode="chat" title="General chat">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                                </svg>
+                                Chat
+                            </button>
+                            <button class="mode-btn" data-mode="explain" title="Get detailed explanations">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+                                </svg>
+                                Explain
+                            </button>
+                            <button class="mode-btn" data-mode="hint" title="Get progressive hints">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M12 2a7 7 0 0 0-7 7c0 4 3 6 3 8h8c0-2 3-4 3-8a7 7 0 0 0-7-7z"/><line x1="9" y1="21" x2="15" y2="21"/>
+                                </svg>
+                                Hint
+                            </button>
+                            <button class="mode-btn" data-mode="recommend" title="Get problem recommendations">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                                </svg>
+                                Recommend
+                            </button>
+                        </div>
+                        <div class="input-wrapper">
+                            <textarea id="chat-input" placeholder="Ask about Codeforces problems... (e.g., 'Give me 1200 greedy problems')" rows="1"></textarea>
+                            <button id="send-btn" class="send-btn" aria-label="Send message">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Explorer View -->
+            <div id="explorer-view" class="view">
+                <div class="explorer-container">
+                    <div class="explorer-header">
+                        <h2>Problem Explorer</h2>
+                        <p class="explorer-subtitle">Browse and filter Codeforces problems</p>
+                    </div>
+                    
+                    <div class="explorer-filters">
+                        <div class="filter-group">
+                            <label>Rating Range</label>
+                            <div class="range-inputs">
+                                <input type="number" id="filter-rating-min" placeholder="800" min="800" max="3500" step="100">
+                                <span class="range-separator">—</span>
+                                <input type="number" id="filter-rating-max" placeholder="3500" min="800" max="3500" step="100">
+                            </div>
+                        </div>
+                        <div class="filter-group">
+                            <label>Tags</label>
+                            <input type="text" id="filter-tags" placeholder="e.g., dp, greedy, math">
+                        </div>
+                        <div class="filter-group">
+                            <label>Search</label>
+                            <input type="text" id="filter-search" placeholder="Search by name...">
+                        </div>
+                        <button id="apply-filters" class="filter-apply-btn">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                            </svg>
+                            Search
+                        </button>
+                    </div>
+
+                    <div id="problems-grid" class="problems-grid">
+                        <!-- Dynamically populated -->
+                    </div>
+
+                    <div id="pagination" class="pagination">
+                        <!-- Dynamically populated -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ingest View -->
+            <div id="ingest-view" class="view">
+                <div class="ingest-container">
+                    <div class="ingest-header">
+                        <h2>Data Ingestion</h2>
+                        <p class="ingest-subtitle">Fetch and index Codeforces problems into the RAG system</p>
+                    </div>
+
+                    <div class="ingest-card">
+                        <h3>Ingestion Settings</h3>
+                        <div class="ingest-form">
+                            <div class="filter-group">
+                                <label>Tags (optional)</label>
+                                <input type="text" id="ingest-tags" placeholder="e.g., dp, greedy">
+                            </div>
+                            <div class="filter-group">
+                                <label>Rating Range (optional)</label>
+                                <div class="range-inputs">
+                                    <input type="number" id="ingest-rating-min" placeholder="800" min="800" max="3500" step="100">
+                                    <span class="range-separator">—</span>
+                                    <input type="number" id="ingest-rating-max" placeholder="3500" min="800" max="3500" step="100">
+                                </div>
+                            </div>
+                            <div class="filter-group">
+                                <label>Max Problems</label>
+                                <input type="number" id="ingest-limit" value="50" min="1" max="1000">
+                            </div>
+                            <button id="start-ingest-btn" class="ingest-start-btn">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                    <polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+                                </svg>
+                                Start Ingestion
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="ingest-status-card" class="ingest-card ingest-status-card hidden">
+                        <h3>Ingestion Progress</h3>
+                        <div class="progress-container">
+                            <div class="progress-bar">
+                                <div id="progress-fill" class="progress-fill" style="width: 0%"></div>
+                            </div>
+                            <div class="progress-info">
+                                <span id="progress-text">0 / 0</span>
+                                <span id="progress-percent">0%</span>
+                            </div>
+                        </div>
+                        <p id="ingest-message" class="ingest-message">Waiting to start...</p>
+                        <div id="ingest-errors" class="ingest-errors hidden">
+                            <span class="error-badge">⚠️ <span id="error-count">0</span> errors</span>
+                        </div>
+                    </div>
+
+                    <div class="ingest-card stats-card">
+                        <h3>Database Stats</h3>
+                        <div id="db-stats" class="stats-grid">
+                            <!-- Dynamically populated -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Problem Detail Modal -->
+            <div id="problem-modal" class="modal hidden">
+                <div class="modal-backdrop"></div>
+                <div class="modal-content">
+                    <button class="modal-close" id="modal-close">&times;</button>
+                    <div id="problem-detail-content">
+                        <!-- Dynamically populated -->
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
