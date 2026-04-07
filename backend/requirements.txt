@@ -20,6 +20,7 @@ numpy==2.2.1
 httpx==0.28.1
 beautifulsoup4==4.12.3
 lxml==5.3.0
+undetected-chromedriver==3.5.5
 
 # Utilities
 python-dotenv==1.0.1

@@ -211,3 +211,57 @@ A single-page application with a stunning, premium dark-mode design.
 2. Start backend via `uvicorn app.main:app --reload`
 3. Open frontend, trigger ingestion, chat with the system
 4. Verify streaming responses, problem filters, similar problems
+
+---
+
+## Phase 9: Async Ingestion Update (Editorial Scraping)
+
+### User Review Required
+> [!IMPORTANT]
+> - **Semaphore Limit:** Do you have a specific concurrency limit in mind for the `asyncio.Semaphore`? I will default to 5 concurrent requests to balance speed and safety against Codeforces IP-bans.
+> - **Chunking Threshold:** Editorials can sometimes be very long. The updated chunker will split them using `tiktoken` into ~400 token blocks. Is this token limit still appropriate for your LLM context?
+
+### Proposed Changes
+
+#### [MODIFY] [models.py](file:///c:/Users/jalaj/.gemini/antigravity/scratch/codeforces-rag-assistant/backend/app/models.py)
+- **Problem Model:** Add `editorial_html = Column(Text, nullable=True)` and `editorial_text = Column(Text, nullable=True)`.
+- **ProblemChunk Model:** Update the schema documentation to explicitly include `editorial` as a supported `chunk_type` enum value.
+
+#### [MODIFY] [services/ingestion.py](file:///c:/Users/jalaj/.gemini/antigravity/scratch/codeforces-rag-assistant/backend/app/services/ingestion.py)
+- **Concurrency Control:** Introduce an `asyncio.Semaphore` and a shared `httpx.AsyncClient` that respects the `SCRAPE_DELAY` environment variable. 
+- **New Functions:**
+  - `fetch_tutorial_link(client, contest_id, index)`: Scrape the individual problem page (e.g. `.../problem/123/A`) and parse the right-hand sidebar "Materials" box for the exact Tutorial/Editorial link.
+  - `fetch_and_extract_editorial(client, tutorial_url, problem_index, problem_name)`: Request the blog URL, locate `<div class="content">`, and use heuristics (like tags containing problem name/index) to extract only the problem's explanation.
+- **Orchestrator Refactor (`ingest_problems`)**: 
+  - Switch from the sequential `for` loop to an `asyncio.gather` approach. 
+  - Create an inner `process_single_problem(semaphore, db, client, prob_data)` coroutine.
+  - Ensure missing editorials log a warning and return `NULL` without aborting the batch task.
+
+#### [MODIFY] [services/text_processing.py](file:///c:/Users/jalaj/.gemini/antigravity/scratch/codeforces-rag-assistant/backend/app/services/text_processing.py)
+- **HTML Cleaning (`html_to_clean_text`)**: Verify it gracefully strips or formats the Editorial `<div class="content">` HTML structure (Lists, Bold elements).
+- **Chunking (`chunk_problem_text`)**: Split the `editorial_text` string into manageable, ~400-token chunks tagged with `chunk_type="editorial"`. (As requested, adapting the current chunker to ensure it maps to the DB chunk types properly).
+
+---
+
+## Phase 10: Stealth Selenium Scraper (Cloudflare Bypass for Editorials)
+
+### User Review Required
+> [!IMPORTANT]
+> - **Architecture Decision:** Because Selenium uses full browser instances (blocking threads) and requires restarts every ~50 problems, integrating it directly into a FastAPI endpoint (`/api/ingest/start`) would cause heavy timeouts and block the server. I propose building the scraper as a standalone background tool: `backend/scripts/stealth_scraper.py`. It will save data locally to a JSON file (`data/scraped_editorials.json`). We will then update the `ingest_problems` endpoint to simply ingest from this JSON file (if available) instead of doing live HTTP requests. Do you agree with this decoupled approach?
+> - **Driver Configuration:** I ran a quick check on your system, and your installed Google Chrome version is `146`. I will explicitly set `version_main=146` for `undetected-chromedriver` to prevent driver mismatch errors.
+
+### Proposed Changes
+
+#### [MODIFY] [backend/requirements.txt](file:///c:/Users/jalaj/.gemini/antigravity/scratch/codeforces-rag-assistant/backend/requirements.txt)
+- Add `undetected-chromedriver` to enable Selenium scraping capable of bypassing Cloudflare bot detections.
+
+#### [NEW] [backend/scripts/stealth_scraper.py](file:///c:/Users/jalaj/.gemini/antigravity/scratch/codeforces-rag-assistant/backend/scripts/stealth_scraper.py)
+This dedicated script will fulfill all 5 phases outlined in your request:
+- **Phase 1 (Browser Config):** Initialize `undetected_chromedriver` with `--disable-gpu`, `--window-size=1280,720`, and `version_main=146`.
+- **Phase 2 (2-Step Extract):** Load the problem page, find the Tutorial link in `.roundbox`, navigate, execute `.spoiler-title` clicks via JS, wait 4s, and parse the HTML with BeautifulSoup. Search for the `problem_name`/ID headers and isolate siblings using the dynamic Stop Conditions defined in the prompt.
+- **Phase 3 (Cleanup/MathJax):** Strip `<pre>` tags, convert LaTeX `<script type="math/tex">` directly into `$ [text] $` strings, `.decompose()` `.MathJax` visuals, strip "Tutorial is loading..." strings, and format `<p>`, `<h1>`, `<ul>`, `<li>`, and `<br>` elements securely with newlines.
+- **Phase 4 (Final Text):** Apply `get_text(separator=' ', strip=True)` to preserve sentence structure with inline math, collapsing multiple spaces to a single space and consecutive newlines to double newlines using regex.
+- **Phase 5 (Bulk Safety):** Wrap logic in a continuous `while/for` loop executing over the list of unscraped problems. It will feature real-time JSON checkpointing `data/scraped_editorials.json`, dynamic problem deduplication, `random.uniform(5, 10)` request delays, a built-in memory reset calling `.quit()` every 50 loops, and heavy `try/except` handlers saving error states to JSON.
+
+#### [MODIFY] [backend/app/services/ingestion.py](file:///c:/Users/jalaj/.gemini/antigravity/scratch/codeforces-rag-assistant/backend/app/services/ingestion.py)
+- Modify the existing ingest script so it automatically checks for `data/scraped_editorials.json`. If an editorial exists in the local JSON dictionary for a given `contest_id` and `index`, it uses it directly. Otherwise, it logs that the item needs scraping by the standalone scraper.

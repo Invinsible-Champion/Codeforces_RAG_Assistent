@@ -36,6 +36,8 @@ class Problem(Base):
     sample_tests = Column(JSON, nullable=True)  # [{input: ..., output: ...}]
     note = Column(Text, nullable=True)
     url = Column(String(500), nullable=True)
+    editorial_html = Column(Text, nullable=True)
+    editorial_text = Column(Text, nullable=True)
     is_embedded = Column(Boolean, default=False, index=True)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
@@ -63,7 +65,7 @@ class ProblemChunk(Base):
     problem_id = Column(String(36), ForeignKey("problems.id", ondelete="CASCADE"), nullable=False)
     chunk_index = Column(Integer, nullable=False)
     chunk_text = Column(Text, nullable=False)
-    chunk_type = Column(String(50), nullable=False)  # statement, input_spec, output_spec, note, example, full
+    chunk_type = Column(String(50), nullable=False)  # statement, input_spec, output_spec, note, example, full, editorial
     token_count = Column(Integer, nullable=True)
     embedding_id = Column(Integer, nullable=True, index=True)  # FAISS vector index
     created_at = Column(DateTime, default=datetime.utcnow)

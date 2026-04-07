@@ -120,62 +120,39 @@ def extract_problem_sections(html: str) -> dict:
 # ─── Editorial Extraction ────────────────────────────────────────────────────
 
 
-def extract_editorial_from_blog(html: str, contest_id: int, problem_index: str) -> Optional[str]:
+def extract_editorial_section(html: str, problem_index: str, problem_name: str) -> tuple[Optional[str], Optional[str]]:
     """
-    Extract ONLY the editorial text for a specific problem from a Codeforces blog entry.
-    
-    Strategy:
-    1. Find the blog content container (.ttypography)
-    2. Locate the header matching the target problem (e.g. "A.", "Problem A", "1095A")
-    3. Collect all sibling elements until the next problem header
-    4. Include content from spoiler blocks
-    5. Strip out all non-editorial noise
-    
-    Returns the clean editorial text, or None if not found.
+    Extract HTML and text for a specific problem's editorial.
     """
     if not html:
-        return None
+        return None, None
 
     soup = BeautifulSoup(html, "html.parser")
-
-    # Find the main editorial content container
-    content = soup.select_one(".ttypography")
+    content = soup.select_one(".ttypography") or soup.select_one(".content") or soup.select_one("#pageContent")
     if not content:
-        # Fallback: try the main blog entry content
-        content = soup.select_one("#pageContent")
-        if not content:
-            return None
+        return None, None
 
-    # Expand all spoiler blocks so their content is accessible
     for spoiler in content.select(".spoiler-content"):
-        # Move spoiler content inline (it's hidden by JS, but present in DOM)
-        pass  # BeautifulSoup already has access to the full DOM
+        pass
 
-    # Build patterns to match this problem's header
-    # Common patterns: "A. Title", "Problem A", "1095A", "A —", "Problem A.", etc.
     idx = problem_index.upper()
+    name_escaped = re.escape(problem_name)
     problem_patterns = [
-        re.compile(rf'^{re.escape(idx)}[\.\s\-—–:]', re.IGNORECASE),  # "A." "A -" "A —"
-        re.compile(rf'^Problem\s+{re.escape(idx)}[\.\s\-—–:]?', re.IGNORECASE),  # "Problem A"
-        re.compile(rf'^{contest_id}{re.escape(idx)}[\.\s\-—–:]?', re.IGNORECASE),  # "1095A"
-        re.compile(rf'\b{re.escape(idx)}[\.\s]', re.IGNORECASE),  # Contains "A." loosely
+        re.compile(rf'^{re.escape(idx)}[\.\s\-—–:]', re.IGNORECASE),
+        re.compile(rf'^Problem\s+{re.escape(idx)}[\.\s\-—–:]?', re.IGNORECASE),
+        re.compile(rf'\b{re.escape(idx)}[\.\s]', re.IGNORECASE),
+        re.compile(rf'{name_escaped}', re.IGNORECASE)
     ]
 
-    # Patterns to detect the NEXT problem header (signals end of current editorial)
-    # Next index: if current is "A", next could be "B"; if "C1", next could be "C2" or "D"
     next_indices = _get_next_indices(problem_index)
     next_patterns = []
     for nidx in next_indices:
         next_patterns.extend([
             re.compile(rf'^{re.escape(nidx)}[\.\s\-—–:]', re.IGNORECASE),
-            re.compile(rf'^Problem\s+{re.escape(nidx)}[\.\s\-—–:]?', re.IGNORECASE),
-            re.compile(rf'^{contest_id}{re.escape(nidx)}[\.\s\-—–:]?', re.IGNORECASE),
+            re.compile(rf'^Problem\s+{re.escape(nidx)}[\.\s\-—–:]?', re.IGNORECASE)
         ])
 
-    # Find all headers in the content
     headers = content.find_all(["h1", "h2", "h3", "h4", "h5", "b", "strong", "p"])
-
-    # Locate the start header for this problem
     start_element = None
     for header in headers:
         header_text = header.get_text(strip=True)
@@ -189,32 +166,28 @@ def extract_editorial_from_blog(html: str, contest_id: int, problem_index: str) 
             break
 
     if not start_element:
-        # Could not find a specific header — try to extract from the whole blog
-        # but only if the blog seems to be specifically about this problem
         full_text = content.get_text()
-        if f"{contest_id}{idx}" in full_text or f"Problem {idx}" in full_text:
-            return _extract_clean_editorial_text(content)
-        return None
+        if problem_name in full_text or f"Problem {idx}" in full_text:
+            return str(content), _extract_clean_editorial_text(content)
+        return None, None
 
-    # Collect all elements from start_element to the next problem header
-    editorial_parts = []
+    editorial_parts_html = []
+    editorial_parts_text = []
     current = start_element
 
     while current:
         current = current.next_sibling
-
         if current is None:
             break
 
-        # Skip whitespace text nodes
         if isinstance(current, NavigableString):
             text = str(current).strip()
             if text:
-                editorial_parts.append(text)
+                editorial_parts_html.append(str(current))
+                editorial_parts_text.append(text)
             continue
 
         if isinstance(current, Tag):
-            # Check if this is the next problem's header
             current_text = current.get_text(strip=True)
             if current_text and current.name in ["h1", "h2", "h3", "h4", "h5", "b", "strong", "p"]:
                 is_next = False
@@ -225,20 +198,22 @@ def extract_editorial_from_blog(html: str, contest_id: int, problem_index: str) 
                 if is_next:
                     break
 
-            # Extract text from this element (including spoiler content)
             elem_text = _extract_element_text(current)
             if elem_text.strip():
-                editorial_parts.append(elem_text.strip())
+                editorial_parts_text.append(elem_text.strip())
+            editorial_parts_html.append(str(current))
 
-    if not editorial_parts:
-        return None
+    if not editorial_parts_text:
+        return None, None
 
-    editorial = "\n\n".join(editorial_parts)
-
-    # Clean up the editorial text
-    editorial = _clean_editorial_text(editorial)
-
-    return editorial if editorial.strip() else None
+    raw_html = "".join(editorial_parts_html)
+    raw_text = "\n\n".join(editorial_parts_text)
+    
+    clean_text = _clean_editorial_text(raw_text)
+    
+    if clean_text.strip():
+        return raw_html, clean_text
+    return None, None
 
 
 def _get_next_indices(current_index: str) -> list[str]:
