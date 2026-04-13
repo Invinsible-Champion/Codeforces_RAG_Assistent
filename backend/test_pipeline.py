@@ -1,55 +1,65 @@
+import os
 import json
 from ml_engine import analyze_user_profile
-from chat_engine import generate_chat_response
+from chat_engine import fetch_practice_problem
 
-def test_backend_pipeline():
-    print("="*60)
-    print("🧪 STAGE 1: VERIFYING ML ENGINE")
-    print("="*60)
-    
-    # 1. Pick a real Codeforces handle to test. 
-    # (If you have a personal account, put your handle here!)
-    test_handle = "nishchay351" 
-    print(f"[*] Fetching API and building ML Profile for: {test_handle}")
-    
-    profile_result = analyze_user_profile(test_handle)
-    
-    if "error" in profile_result:
-        print(f"[-] ML Engine Failed: {profile_result['error']}")
-        return
-        
-    print("[+] ML Engine Success! Here is the extracted profile:\n")
-    
-    # Print it beautifully so you can visually verify the metrics
-    print(json.dumps({
-        "Handle": profile_result["handle"],
-        "Cluster": profile_result["cluster"],
-        "Persona": profile_result["persona_name"],
-        "System Prompt": profile_result["system_prompt"][:100] + "...", # Truncate for terminal
-        "Metrics": profile_result["metrics"]
-    }, indent=4))
-    
+def run_pipeline_test():
     print("\n" + "="*60)
-    print("🧪 STAGE 2: VERIFYING AGENTIC CHAT ENGINE (RAG)")
+    print("🚀 AI COACH END-TO-END PIPELINE TESTER 🚀")
     print("="*60)
-    
-    # 2. Test a normal conversational message (Should NOT trigger ChromaDB)
-    print("[*] Test A: Sending a conceptual chat message...")
-    chat_message = "I am struggling to understand when to use Dijkstra vs BFS. Can you explain?"
-    print(f'User: "{chat_message}"')
-    
-    chat_response = generate_chat_response(message=chat_message, user_profile=profile_result)
-    print(f"\nAI Coach:\n{chat_response}")
+
+    # Make sure the API key is loaded before we start
+    if not os.getenv("GEMINI_API_KEY"):
+        print("[-] WARNING: GEMINI_API_KEY is not set in your environment variables!")
+        print("[-] Please run: export GEMINI_API_KEY='your_key' before testing.")
+        return
+
+    handle = input("Enter a Codeforces Handle (e.g., tourist, jiangly): ").strip()
+    if not handle:
+        print("[-] Handle cannot be empty. Exiting.")
+        return
+
+    # --- STEP 1: ML ENGINE ---
+    print(f"\n[1/3] 🔍 Scraping Codeforces & Extracting ML Features for '{handle}'...")
+    user_profile = analyze_user_profile(handle)
+
+    if "error" in user_profile:
+        print(f"\n❌ Pipeline Failed at ML Engine: {user_profile['error']}")
+        return
+
+    print("[+] ML Profile Successfully Built!")
+    print(f"    -> Persona: {user_profile['persona_name']} (Cluster {user_profile['cluster']})")
+    print(f"    -> Match Confidence: {user_profile.get('cluster_probability', 0.0)*100:.1f}%")
+    print(f"    -> User Rating: {user_profile['current_rating']}")
+    print(f"    -> Historical Accuracy: {user_profile['metrics']['accuracy']*100:.1f}%")
+    print(f"    -> Attempted Problems Filter Loaded: {len(user_profile.get('attempted_problems', []))} problems")
+
+    # --- STEP 2: CHAT ENGINE (RETRIEVAL & RANKING) ---
+    print("\n[2/3] 🧠 Executing Two-Stage Recommender (ChromaDB + XGBoost)...")
+    try:
+        recommendation = fetch_practice_problem(user_profile)
+    except Exception as e:
+        print(f"\n❌ Pipeline Crashed at Recommendation Engine: {e}")
+        return
+
+    if not recommendation.get("problem_details"):
+        print("\n⚠️ Warning: The engine could not find a valid problem.")
+        print(f"Engine Output: {recommendation.get('message')}")
+        return
+
+    print("[+] Problem Successfully Ranked and Selected!")
+    print(f"    -> Selected Problem: {recommendation['problem_details'].get('name')}")
+    print(f"    -> Target Rating: {recommendation['problem_details'].get('rating')}")
+
+    # --- STEP 3: FINAL PRESENTATION ---
+    print("\n[3/3] 🎙️ Gemini Presentation Generation Complete.\n")
+    print("="*60)
+    print("FINAL LLM OUTPUT TO FRONTEND:")
     print("-" * 60)
-    
-    # 3. Test a problem request (SHOULD trigger the JSON router and ChromaDB)
-    print("\n[*] Test B: Sending a problem request...")
-    problem_message = "I think I'm ready. Give me a problem to practice my weaknesses."
-    print(f'User: "{problem_message}"')
-    
-    problem_response = generate_chat_response(message=problem_message, user_profile=profile_result)
-    print(f"\nAI Coach:\n{problem_response}")
+    print(recommendation["message"])
     print("="*60)
+    
+    print("\n✅ Pipeline execution complete. If this looks good, you are ready to plug it into FastAPI!")
 
 if __name__ == "__main__":
-    test_backend_pipeline()
+    run_pipeline_test()

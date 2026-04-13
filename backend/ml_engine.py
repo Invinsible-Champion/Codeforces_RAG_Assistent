@@ -4,14 +4,12 @@ import joblib
 from pathlib import Path
 from persona_prompts import PERSONA_MAP
 
-# Setup paths based on project structure
 BASE_DIR = Path(__file__).resolve().parent
 TRAIN_DIR = BASE_DIR.parent / "train"
 
 SCALER_PATH = TRAIN_DIR / "persona_scaler.pkl"
 MODEL_PATH = TRAIN_DIR / "persona_gmm_model.pkl"
 
-# Load ML artifacts globally
 try:
     scaler = joblib.load(SCALER_PATH)
     gmm_model = joblib.load(MODEL_PATH)
@@ -20,9 +18,8 @@ except Exception as e:
     scaler, gmm_model = None, None
 
 def analyze_user_profile(handle: str):
-    """Fetches submissions, calculates features, and returns the LLM Persona Prompt."""
+    """Fetches submissions, calculates features, and returns the ML Profile."""
     
-    # 1. Fetch Submissions (user.status)
     status_url = f"https://codeforces.com/api/user.status?handle={handle}"
     try:
         response = requests.get(status_url, timeout=15).json()
@@ -35,18 +32,16 @@ def analyze_user_profile(handle: str):
     if not subs:
         return {"error": "No submissions found for this handle."}
 
-    # 2. Fetch Current Rating (user.info)
     info_url = f"https://codeforces.com/api/user.info?handles={handle}"
-    current_rating = 0  # Default to 0 if unrated or if the API call fails
+    current_rating = 0  
     try:
         info_response = requests.get(info_url, timeout=15).json()
         if info_response.get("status") == "OK":
             user_info = info_response["result"][0]
-            current_rating = user_info.get("rating", 0)  # Use .get() to safely handle unrated users
+            current_rating = user_info.get("rating", 0)  
     except Exception as e:
         print(f"Warning: Could not fetch current rating for {handle}: {e}")
 
-    # --- Data Extraction ---
     user_subs_data = []
     for sub in subs:
         tags_list = sub.get("problem", {}).get("tags", [])
@@ -66,7 +61,6 @@ def analyze_user_profile(handle: str):
     if total_subs < 10:
         return {"error": "Not enough submissions to build an ML profile."}
 
-    # --- Feature Engineering ---
     ok_subs = len(df[df["verdict"] == "OK"])
     accuracy = ok_subs / total_subs
     tle_subs = len(df[df["verdict"] == "TIME_LIMIT_EXCEEDED"])
@@ -87,6 +81,13 @@ def analyze_user_profile(handle: str):
     rapid_fails = failed_subs[(failed_subs["time_diff"] > 0) & (failed_subs["time_diff"] < 900)]
     tilt_factor = rapid_fails["time_diff"].mean() if len(rapid_fails) > 0 else 900
 
+    df = df.sort_values(by=["creation_time"])
+    recent_10 = df.tail(10)
+    recent_win_rate = len(recent_10[recent_10["verdict"] == "OK"]) / len(recent_10) if len(recent_10) > 0 else accuracy
+    
+    user_attempts = df.groupby('problem_id').size()
+    persistence_index = user_attempts.mean() if len(user_attempts) > 0 else 1.0
+
     df["tags"] = df["tags"].fillna("")
     def calc_tag_pref(keyword):
         tagged_subs = df[df["tags"].str.contains(keyword, case=False, regex=True)]
@@ -99,6 +100,8 @@ def analyze_user_profile(handle: str):
         "abandonment_rate": abandonment_rate,
         "one_shot_rate": one_shot_rate,
         "tilt_speed_seconds": tilt_factor,
+        "recent_win_rate": recent_win_rate,
+        "persistence_index": persistence_index,
         "math_pref": calc_tag_pref("math|number theory|combinatorics"),
         "dp_pref": calc_tag_pref("dp"),
         "graph_pref": calc_tag_pref("graphs|trees|dfs"),
@@ -119,20 +122,25 @@ def analyze_user_profile(handle: str):
     if scaler is None or gmm_model is None:
         return {"error": "ML Models not loaded on backend."}
 
-    # --- ML Classification ---
     x_scaled = scaler.transform(x_df)
-    cluster = int(gmm_model.predict(x_scaled)[0])
     
-    # Grab the exact prompt needed for the LLM
+    probabilities = gmm_model.predict_proba(x_scaled)[0]
+    cluster = int(probabilities.argmax())
+    top_probability = float(probabilities[cluster])
+    
     persona_info = PERSONA_MAP.get(cluster, PERSONA_MAP[0])
+
+    attempted_problems = list(df["problem_id"].unique())
 
     # --- Final Output ---
     return {
         "handle": handle,
         "cluster": cluster,
+        "cluster_probability": top_probability,
         "persona_name": persona_info["name"],
         "system_prompt": persona_info["system_prompt"],
         "avg_rating": avg_solved_rating,
         "current_rating": current_rating,  
-        "metrics": features
+        "metrics": features,
+        "attempted_problems": attempted_problems 
     }

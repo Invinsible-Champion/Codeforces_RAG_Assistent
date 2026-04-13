@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Antigravity | AI Codeforces Coach</title>
+    <title>CF Coach | AI-Powered Codeforces Training</title>
+    <meta name="description" content="Get personalized Codeforces practice problems tailored to your weaknesses using ML-powered analysis and XGBoost ranking.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -14,9 +15,8 @@
     <header class="app-header glass-panel">
         <div class="logo">Codeforces <span class="highlight">Coach</span></div>
         <nav class="tabs-nav">
-            <button class="nav-tab active" data-target="tab-problem">Practice</button>
-            <button class="nav-tab" data-target="tab-chat">Coach Chat</button>
-            <button class="nav-tab" data-target="tab-profile">Analytics</button>
+            <button class="nav-tab active" data-target="tab-problem" id="nav-practice">Practice</button>
+            <button class="nav-tab" data-target="tab-profile" id="nav-analytics">Analytics</button>
         </nav>
         <div class="active-handle">👤 <span id="top-handle-display">Not Set</span></div>
     </header>
@@ -27,15 +27,25 @@
             <div class="hero">
                 <div class="glow-orb"></div>
                 <h1>Get a <span class="highlight">Tailored Problem</span></h1>
-                <p>Train dynamically with problems specifically selected to target your weaknesses based on your Codeforces stats.</p>
+                <p>Enter your Codeforces handle and our ML pipeline will find the perfect problem targeting your weaknesses.</p>
                 <form id="problem-form" class="glass-card">
                     <input type="text" id="gp-handle" placeholder="Enter Codeforces handle..." required autocomplete="off" />
                     <button type="submit" id="gp-btn" class="primary-btn">
                         <span>Get Problem <span class="icon">➔</span></span>
                     </button>
                 </form>
-                <div id="gp-loading" class="hidden">
-                    <div class="spinner"></div><p>Querying the database for a tailor-made problem...</p>
+                <div id="gp-loading" class="hidden loading-state">
+                    <div class="spinner"></div>
+                    <p>Analyzing profile & ranking problems with XGBoost...</p>
+                    <div class="pipeline-steps">
+                        <span class="step active" id="step-ml">ML Profile</span>
+                        <span class="step-arrow">→</span>
+                        <span class="step" id="step-retrieve">Retrieval</span>
+                        <span class="step-arrow">→</span>
+                        <span class="step" id="step-rank">Ranking</span>
+                        <span class="step-arrow">→</span>
+                        <span class="step" id="step-present">Presentation</span>
+                    </div>
                 </div>
                 <div id="gp-error" class="hidden error"></div>
             </div>
@@ -53,34 +63,7 @@
             </div>
         </section>
 
-        <!-- CHAT TAB -->
-        <section id="tab-chat" class="tab-view hidden fade-in">
-            <div class="chat-wrapper">
-                <div id="chat-setup" class="setup-notice fade-in">
-                    <div class="glow-orb"></div>
-                    <h2>Start your <span class="highlight">Session</span></h2>
-                    <p>Enter your handle to chat with your AI coach.</p>
-                    <form id="chat-handle-form" class="glass-card mini">
-                        <input type="text" id="chat-setup-handle" placeholder="Codeforces handle..." required />
-                        <button type="submit" class="primary-btn">Start Chat</button>
-                    </form>
-                    <div id="chat-loading" class="hidden setup-loading"><div class="spinner"></div></div>
-                    <div id="chat-error" class="hidden error"></div>
-                </div>
-                
-                <div class="chat-container glass-panel hidden" id="chat-main">
-                    <div class="chat-messages" id="chat-messages">
-                        <!-- Messages dynamically inserted -->
-                    </div>
-                    <form class="chat-input-area" id="chat-form">
-                        <input type="text" id="chat-input" placeholder="Ask for advice, help with a concept, or review code..." required autocomplete="off"/>
-                        <button type="submit" class="send-btn">Send</button>
-                    </form>
-                </div>
-            </div>
-        </section>
-
-        <!-- PROFILE TAB -->
+        <!-- ANALYTICS TAB -->
         <section id="tab-profile" class="tab-view hidden fade-in">
              <div id="profile-setup" class="setup-notice fade-in">
                  <div class="glow-orb"></div>

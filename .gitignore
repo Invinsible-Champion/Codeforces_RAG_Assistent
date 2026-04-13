@@ -16,7 +16,6 @@ env/
 # ---------------------------------------------------
 # Database & Vector Stores
 # ---------------------------------------------------
-# Ignores the ChromaDB storage and SQLite databases
 backend/chroma_data/
 *.sqlite3
 
@@ -26,18 +25,34 @@ backend/chroma_data/
 # Jupyter notebook checkpoints
 .ipynb_checkpoints/
 
-# Data files (CSVs are usually too large for Git)
+# Large data files (CSVs)
 train/*.csv
 
-# Serialized ML models and scalers
+# Serialized ML models (pkl, json weights)
 train/*.pkl
+train/*.json
 
-# Generated plots/visualizations 
-# (Remove this line if you want the dbscan plot tracked for a README)
+# Generated plots/visualizations
 train/*.png
+
+# ---------------------------------------------------
+# XGBoost Model Weights (too large for Git)
+# ---------------------------------------------------
+# These are ~15MB each; document how to retrain instead
+train/ranker.json
+train/xgboost_ranker_v2.json
 
 # ---------------------------------------------------
 # OS Generated Files
 # ---------------------------------------------------
 .DS_Store
 Thumbs.db
+
+# ---------------------------------------------------
+# IDE / Editor
+# ---------------------------------------------------
+.vscode/
+.idea/
+*.swp
+*.swo
+*~

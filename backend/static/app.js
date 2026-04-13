@@ -7,7 +7,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // Global state
     let currentHandle = null;
     let currentUserProfile = null;
-    let chatHistory = [];
 
     // Switch Tabs Logic
     navTabs.forEach(tab => {
@@ -25,65 +24,79 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Handle Forms logic
+    // --- PRACTICE TAB: Get Problem ---
     const gpForm = document.getElementById('problem-form');
-    const chatSetupForm = document.getElementById('chat-handle-form');
-    const profileSetupForm = document.getElementById('profile-handle-form');
 
-    const handleFormSubmit = async (e, formType, inputId, loadingId, errorId) => {
+    gpForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        const inputEl = document.getElementById(inputId);
+        const inputEl = document.getElementById('gp-handle');
         const handle = inputEl.value.trim();
         if (!handle) return;
 
-        const loadingEl = document.getElementById(loadingId);
-        const errorEl = document.getElementById(errorId);
+        const loadingEl = document.getElementById('gp-loading');
+        const errorEl = document.getElementById('gp-error');
+        const resultArea = document.getElementById('gp-result-area');
+
+        errorEl.classList.add('hidden');
+        resultArea.classList.add('hidden');
+        loadingEl.classList.remove('hidden');
+
+        // Animate pipeline steps
+        animatePipelineSteps();
+
+        try {
+            const res = await fetch('/api/get_problem', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ handle })
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.detail || data.error || 'Failed to fetch problem.');
+
+            updateGlobalState(handle, data.profile);
+            renderProblem(data.message, data.problem_details);
+        } catch (err) {
+            errorEl.textContent = err.message;
+            errorEl.classList.remove('hidden');
+        } finally {
+            loadingEl.classList.add('hidden');
+            resetPipelineSteps();
+        }
+    });
+
+    // --- ANALYTICS TAB: Analyze Profile ---
+    const profileSetupForm = document.getElementById('profile-handle-form');
+
+    profileSetupForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const inputEl = document.getElementById('profile-setup-handle');
+        const handle = inputEl.value.trim();
+        if (!handle) return;
+
+        const loadingEl = document.getElementById('profile-loading');
+        const errorEl = document.getElementById('profile-error');
 
         errorEl.classList.add('hidden');
         loadingEl.classList.remove('hidden');
 
         try {
-            if (formType === 'problem') {
-                const res = await fetch('/api/get_problem', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ handle })
-                });
-                const data = await res.json();
-                if (!res.ok) throw new Error(data.detail || data.error || 'Failed to fetch problem.');
-                
-                updateGlobalState(handle, data.profile);
-                renderProblem(data.message, data.problem_details);
-            } else {
-                // Profile & Chat setup use analyze endpoint
-                if (currentHandle !== handle || !currentUserProfile) {
-                    const res = await fetch('/api/analyze', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ handle })
-                    });
-                    const data = await res.json();
-                    if (!res.ok || data.error) throw new Error(data.detail || data.error || 'Failed to analyze profile.');
-                    updateGlobalState(handle, data);
-                    
-                    if (formType === 'chat') {
-                        appendMessage('bot', `Hello **${handle}**! I've analyzed your Codeforces history. It looks like you're Archetype **${data.cluster}**. How can I help you train today?`);
-                        chatHistory.push({ role: 'model', content: `Hello ${handle}! I've analyzed your Codeforces history. It looks like you're Archetype ${data.cluster}. How can I help you train today?` });
-                    }
-                }
-            }
+            const res = await fetch('/api/analyze', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ handle })
+            });
+            const data = await res.json();
+            if (!res.ok || data.error) throw new Error(data.detail || data.error || 'Failed to analyze profile.');
+            updateGlobalState(handle, data);
         } catch (err) {
             errorEl.textContent = err.message;
             errorEl.classList.remove('hidden');
         } finally {
             loadingEl.classList.add('hidden');
         }
-    };
+    });
 
-    gpForm.addEventListener('submit', e => handleFormSubmit(e, 'problem', 'gp-handle', 'gp-loading', 'gp-error'));
-    chatSetupForm.addEventListener('submit', e => handleFormSubmit(e, 'chat', 'chat-setup-handle', 'chat-loading', 'chat-error'));
-    profileSetupForm.addEventListener('submit', e => handleFormSubmit(e, 'profile', 'profile-setup-handle', 'profile-loading', 'profile-error'));
-
+    // --- Shared State ---
     function updateGlobalState(handle, profileData) {
         currentHandle = handle;
         currentUserProfile = profileData;
@@ -91,12 +104,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Auto-fill other inputs
         document.getElementById('gp-handle').value = handle;
-        document.getElementById('chat-setup-handle').value = handle;
         document.getElementById('profile-setup-handle').value = handle;
-
-        // Enable Chat Layout
-        document.getElementById('chat-setup').classList.add('hidden');
-        document.getElementById('chat-main').classList.remove('hidden');
 
         // Enable Profile Layout
         document.getElementById('profile-setup').classList.add('hidden');
@@ -115,15 +123,30 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('profile-tilt').textContent = p.tilt_speed_seconds ? Math.round(p.tilt_speed_seconds) + 's' : 'N/A';
         document.getElementById('profile-abandonment').textContent = p.abandonment_rate ? (p.abandonment_rate * 100).toFixed(1) + '%' : 'N/A';
         
-        // Compute pseudo strength/weakness dynamically from metrics struct (simplified logic to just avoid crashing)
-        let maxPrefName = 'None';
-        let maxPrefVal = -1;
-        let pkeys = ['math_pref','dp_pref','graph_pref','brute_pref','greedy_pref','binary_pref','cons_pref','datastruct_pref'];
-        for (let k of pkeys) {
-            if(p[k] && p[k] > maxPrefVal) { maxPrefVal = p[k]; maxPrefName = k.replace('_pref',''); }
+        // Compute strength/weakness dynamically from metrics
+        const prefKeys = ['math_pref','dp_pref','graph_pref','brute_pref','greedy_pref','binary_pref','cons_pref','datastruct_pref'];
+        const prefLabels = {
+            'math_pref': 'Math & Number Theory',
+            'dp_pref': 'Dynamic Programming',
+            'graph_pref': 'Graphs & Trees',
+            'brute_pref': 'Brute Force & Implementation',
+            'greedy_pref': 'Greedy & Two Pointers',
+            'binary_pref': 'Binary Search',
+            'cons_pref': 'Constructive & Strings',
+            'datastruct_pref': 'Data Structures'
+        };
+
+        let maxKey = null, maxVal = -1;
+        let minKey = null, minVal = Infinity;
+
+        for (let k of prefKeys) {
+            const val = p[k] || 0;
+            if (val > maxVal) { maxVal = val; maxKey = k; }
+            if (val < minVal) { minVal = val; minKey = k; }
         }
-        document.getElementById('profile-strengths').textContent = maxPrefName !== 'None' ? maxPrefName.toUpperCase() : 'None';
-        document.getElementById('profile-weakness').textContent = p.optimization_struggle > 0.3 ? 'Time Limit Exc / High Abandonment' : 'Standard Algorithmic Challenges';
+
+        document.getElementById('profile-strengths').textContent = maxKey ? prefLabels[maxKey] : 'N/A';
+        document.getElementById('profile-weakness').textContent = minKey ? prefLabels[minKey] : 'N/A';
     }
 
     function renderProblem(markdownText, meta) {
@@ -142,81 +165,33 @@ document.addEventListener('DOMContentLoaded', () => {
         content.innerHTML = marked.parse(markdownText);
     }
 
-    // --- CHAT LOGIC ---
-    const chatForm = document.getElementById('chat-form');
-    const chatInput = document.getElementById('chat-input');
-    const chatMessages = document.getElementById('chat-messages');
+    // --- Pipeline Step Animation ---
+    const stepIds = ['step-ml', 'step-retrieve', 'step-rank', 'step-present'];
+    let stepInterval = null;
 
-    chatForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const msg = chatInput.value.trim();
-        if (!msg) return;
+    function animatePipelineSteps() {
+        let idx = 0;
+        stepInterval = setInterval(() => {
+            // Mark previous steps as done
+            for (let i = 0; i < idx; i++) {
+                const el = document.getElementById(stepIds[i]);
+                if (el) { el.classList.remove('active'); el.classList.add('done'); }
+            }
+            // Mark current step as active
+            if (idx < stepIds.length) {
+                const el = document.getElementById(stepIds[idx]);
+                if (el) { el.classList.add('active'); }
+            }
+            idx++;
+            if (idx > stepIds.length) clearInterval(stepInterval);
+        }, 2500);
+    }
 
-        appendMessage('user', msg);
-        chatHistory.push({ role: 'user', content: msg });
-        chatInput.value = '';
-
-        const loadingId = appendLoading();
-
-        try {
-            const res = await fetch('/api/chat', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    message: msg,
-                    history: chatHistory.slice(0, -1),
-                    profile: currentUserProfile
-                })
-            });
-
-            const data = await res.json();
-            removeLoading(loadingId);
-
-            if (!res.ok) throw new Error(data.detail || 'Chat request failed.');
-
-            appendMessage('bot', data.message);
-            chatHistory.push({ role: 'model', content: data.message });
-
-        } catch (err) {
-            removeLoading(loadingId);
-            appendMessage('bot', `⚠️ Error: ${err.message}`);
+    function resetPipelineSteps() {
+        if (stepInterval) clearInterval(stepInterval);
+        for (let id of stepIds) {
+            const el = document.getElementById(id);
+            if (el) { el.classList.remove('active', 'done'); }
         }
-    });
-
-    function appendMessage(sender, text) {
-        const div = document.createElement('div');
-        div.className = `message ${sender} fade-in`;
-        
-        const htmlText = sender === 'bot' ? marked.parse(text) : escapeHtml(text);
-        
-        div.innerHTML = `
-            <div class="avatar">${sender === 'user' ? 'U' : 'AI'}</div>
-            <div class="bubble">${htmlText}</div>
-        `;
-        chatMessages.appendChild(div);
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-    }
-
-    function appendLoading() {
-        const id = 'loading-' + Date.now();
-        const div = document.createElement('div');
-        div.className = `message bot`;
-        div.id = id;
-        div.innerHTML = `
-            <div class="avatar">AI</div>
-            <div class="bubble"><div class="jumping-dots"><span>.</span><span>.</span><span>.</span></div></div>
-        `;
-        chatMessages.appendChild(div);
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-        return id;
-    }
-
-    function removeLoading(id) {
-        const el = document.getElementById(id);
-        if (el) el.remove();
-    }
-
-    function escapeHtml(unsafe) {
-        return unsafe.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
     }
 });
