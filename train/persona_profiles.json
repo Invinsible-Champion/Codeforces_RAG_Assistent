@@ -1,0 +1,142 @@
+{
+    "0": {
+        "size": 85,
+        "accuracy": 0.615,
+        "one_shot": 0.668,
+        "tle_rate": 0.026,
+        "abandonment": 0.299,
+        "tilt_speed": 255.8,
+        "avg_rating": 1098.0,
+        "strengths": [
+            "Brute Force/Impl",
+            "Math"
+        ],
+        "weakness": "Data Structures"
+    },
+    "1": {
+        "size": 179,
+        "accuracy": 0.459,
+        "one_shot": 0.536,
+        "tle_rate": 0.075,
+        "abandonment": 0.349,
+        "tilt_speed": 255.2,
+        "avg_rating": 1176.0,
+        "strengths": [
+            "Greedy/Two Pointers",
+            "Math"
+        ],
+        "weakness": "Data Structures"
+    },
+    "2": {
+        "size": 103,
+        "accuracy": 0.518,
+        "one_shot": 0.571,
+        "tle_rate": 0.053,
+        "abandonment": 0.199,
+        "tilt_speed": 308.9,
+        "avg_rating": 977.0,
+        "strengths": [
+            "Math",
+            "Greedy/Two Pointers"
+        ],
+        "weakness": "Graphs/Trees"
+    },
+    "3": {
+        "size": 163,
+        "accuracy": 0.464,
+        "one_shot": 0.574,
+        "tle_rate": 0.079,
+        "abandonment": 0.455,
+        "tilt_speed": 247.3,
+        "avg_rating": 1561.0,
+        "strengths": [
+            "Graphs/Trees",
+            "Data Structures"
+        ],
+        "weakness": "Brute Force/Impl"
+    },
+    "4": {
+        "size": 161,
+        "accuracy": 0.436,
+        "one_shot": 0.542,
+        "tle_rate": 0.09,
+        "abandonment": 0.207,
+        "tilt_speed": 226.6,
+        "avg_rating": 1665.0,
+        "strengths": [
+            "Graphs/Trees",
+            "Data Structures"
+        ],
+        "weakness": "Brute Force/Impl"
+    },
+    "5": {
+        "size": 84,
+        "accuracy": 0.592,
+        "one_shot": 0.633,
+        "tle_rate": 0.027,
+        "abandonment": 0.159,
+        "tilt_speed": 248.2,
+        "avg_rating": 880.0,
+        "strengths": [
+            "Brute Force/Impl",
+            "Math"
+        ],
+        "weakness": "Graphs/Trees"
+    },
+    "6": {
+        "size": 218,
+        "accuracy": 0.526,
+        "one_shot": 0.593,
+        "tle_rate": 0.049,
+        "abandonment": 0.155,
+        "tilt_speed": 276.8,
+        "avg_rating": 1199.0,
+        "strengths": [
+            "Binary Search",
+            "Greedy/Two Pointers"
+        ],
+        "weakness": "Graphs/Trees"
+    },
+    "7": {
+        "size": 200,
+        "accuracy": 0.509,
+        "one_shot": 0.589,
+        "tle_rate": 0.051,
+        "abandonment": 0.176,
+        "tilt_speed": 264.9,
+        "avg_rating": 1427.0,
+        "strengths": [
+            "Graphs/Trees",
+            "Dynamic Programming"
+        ],
+        "weakness": "Brute Force/Impl"
+    },
+    "8": {
+        "size": 141,
+        "accuracy": 0.525,
+        "one_shot": 0.625,
+        "tle_rate": 0.056,
+        "abandonment": 0.271,
+        "tilt_speed": 252.8,
+        "avg_rating": 1563.0,
+        "strengths": [
+            "Graphs/Trees",
+            "Data Structures"
+        ],
+        "weakness": "Brute Force/Impl"
+    },
+    "9": {
+        "size": 63,
+        "accuracy": 0.453,
+        "one_shot": 0.519,
+        "tle_rate": 0.041,
+        "abandonment": 0.283,
+        "tilt_speed": 233.8,
+        "avg_rating": 984.0,
+        "strengths": [
+            "Brute Force/Impl",
+            "Math"
+        ],
+        "weakness": "Graphs/Trees"
+    }
+}

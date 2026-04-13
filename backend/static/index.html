@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Antigravity | AI Codeforces Coach</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Top Navigation -->
+    <header class="app-header glass-panel">
+        <div class="logo">Codeforces <span class="highlight">Coach</span></div>
+        <nav class="tabs-nav">
+            <button class="nav-tab active" data-target="tab-problem">Practice</button>
+            <button class="nav-tab" data-target="tab-chat">Coach Chat</button>
+            <button class="nav-tab" data-target="tab-profile">Analytics</button>
+        </nav>
+        <div class="active-handle">👤 <span id="top-handle-display">Not Set</span></div>
+    </header>
+
+    <main class="container">
+        <!-- PRACTICE TAB -->
+        <section id="tab-problem" class="tab-view active fade-in">
+            <div class="hero">
+                <div class="glow-orb"></div>
+                <h1>Get a <span class="highlight">Tailored Problem</span></h1>
+                <p>Train dynamically with problems specifically selected to target your weaknesses based on your Codeforces stats.</p>
+                <form id="problem-form" class="glass-card">
+                    <input type="text" id="gp-handle" placeholder="Enter Codeforces handle..." required autocomplete="off" />
+                    <button type="submit" id="gp-btn" class="primary-btn">
+                        <span>Get Problem <span class="icon">➔</span></span>
+                    </button>
+                </form>
+                <div id="gp-loading" class="hidden">
+                    <div class="spinner"></div><p>Querying the database for a tailor-made problem...</p>
+                </div>
+                <div id="gp-error" class="hidden error"></div>
+            </div>
+
+            <!-- Result Area -->
+            <div id="gp-result-area" class="hidden result-view fade-in delay-1">
+                <div class="result-header">
+                    <h3>Recommended Practice Problem</h3>
+                    <div class="problem-meta">
+                        <span id="pb-rating" class="meta-tag"></span>
+                        <span id="pb-tags" class="meta-tag highlight-tag"></span>
+                    </div>
+                </div>
+                <div id="gp-content" class="markdown-body"></div>
+            </div>
+        </section>
+
+        <!-- CHAT TAB -->
+        <section id="tab-chat" class="tab-view hidden fade-in">
+            <div class="chat-wrapper">
+                <div id="chat-setup" class="setup-notice fade-in">
+                    <div class="glow-orb"></div>
+                    <h2>Start your <span class="highlight">Session</span></h2>
+                    <p>Enter your handle to chat with your AI coach.</p>
+                    <form id="chat-handle-form" class="glass-card mini">
+                        <input type="text" id="chat-setup-handle" placeholder="Codeforces handle..." required />
+                        <button type="submit" class="primary-btn">Start Chat</button>
+                    </form>
+                    <div id="chat-loading" class="hidden setup-loading"><div class="spinner"></div></div>
+                    <div id="chat-error" class="hidden error"></div>
+                </div>
+                
+                <div class="chat-container glass-panel hidden" id="chat-main">
+                    <div class="chat-messages" id="chat-messages">
+                        <!-- Messages dynamically inserted -->
+                    </div>
+                    <form class="chat-input-area" id="chat-form">
+                        <input type="text" id="chat-input" placeholder="Ask for advice, help with a concept, or review code..." required autocomplete="off"/>
+                        <button type="submit" class="send-btn">Send</button>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <!-- PROFILE TAB -->
+        <section id="tab-profile" class="tab-view hidden fade-in">
+             <div id="profile-setup" class="setup-notice fade-in">
+                 <div class="glow-orb"></div>
+                 <h2>Analyze <span class="highlight">Profile</span></h2>
+                 <p>Enter your handle to view advanced statistics and AI archetype details.</p>
+                 <form id="profile-handle-form" class="glass-card mini">
+                     <input type="text" id="profile-setup-handle" placeholder="Codeforces handle..." required />
+                     <button type="submit" class="primary-btn">Analyze Profile</button>
+                 </form>
+                 <div id="profile-loading" class="hidden setup-loading"><div class="spinner"></div></div>
+                 <div id="profile-error" class="hidden error"></div>
+             </div>
+
+             <div id="profile-main" class="profile-layout hidden fade-in delay-1">
+                <aside class="profile-card glass-panel fade-in">
+                    <div class="archetype-badge">Archetype <span id="profile-cluster"></span></div>
+                    <h3><span id="profile-handle-title"></span>'s Profile</h3>
+                    <div class="stats-grid">
+                        <div class="stat-box">
+                            <span class="label">Avg Solved Rating</span>
+                            <span class="value" id="profile-rating"></span>
+                        </div>
+                        <div class="stat-box">
+                            <span class="label">One-Shot Precision</span>
+                            <span class="value" id="profile-oneshot"></span>
+                        </div>
+                        <div class="stat-box">
+                            <span class="label">Tilt Speed</span>
+                            <span class="value" id="profile-tilt"></span>
+                        </div>
+                        <div class="stat-box">
+                            <span class="label">Abandonment</span>
+                            <span class="value" id="profile-abandonment"></span>
+                        </div>
+                    </div>
+                    <div class="domains">
+                        <div class="domain-box">
+                            <span class="label text-green">💪 Strengths</span>
+                            <p id="profile-strengths"></p>
+                        </div>
+                        <div class="domain-box">
+                            <span class="label text-red">⚠️ Weaknesses</span>
+                            <p id="profile-weakness"></p>
+                        </div>
+                    </div>
+                </aside>
+             </div>
+        </section>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

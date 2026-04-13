@@ -1,0 +1,43 @@
+# ---------------------------------------------------
+# Python & Virtual Environments
+# ---------------------------------------------------
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+env/
+
+# ---------------------------------------------------
+# Environment Variables (Security)
+# ---------------------------------------------------
+.env
+
+# ---------------------------------------------------
+# Database & Vector Stores
+# ---------------------------------------------------
+# Ignores the ChromaDB storage and SQLite databases
+backend/chroma_data/
+*.sqlite3
+
+# ---------------------------------------------------
+# Machine Learning & Data Files
+# ---------------------------------------------------
+# Jupyter notebook checkpoints
+.ipynb_checkpoints/
+
+# Data files (CSVs are usually too large for Git)
+train/*.csv
+
+# Serialized ML models and scalers
+train/*.pkl
+
+# Generated plots/visualizations 
+# (Remove this line if you want the dbscan plot tracked for a README)
+train/*.png
+
+# ---------------------------------------------------
+# OS Generated Files
+# ---------------------------------------------------
+.DS_Store
+Thumbs.db
