@@ -7,112 +7,277 @@
     <meta name="description" content="Get personalized Codeforces practice problems tailored to your weaknesses using ML-powered analysis and XGBoost ranking.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- Top Navigation -->
-    <header class="app-header glass-panel">
-        <div class="logo">Codeforces <span class="highlight">Coach</span></div>
-        <nav class="tabs-nav">
-            <button class="nav-tab active" data-target="tab-problem" id="nav-practice">Practice</button>
-            <button class="nav-tab" data-target="tab-profile" id="nav-analytics">Analytics</button>
-        </nav>
-        <div class="active-handle">👤 <span id="top-handle-display">Not Set</span></div>
-    </header>
 
-    <main class="container">
-        <!-- PRACTICE TAB -->
-        <section id="tab-problem" class="tab-view active fade-in">
-            <div class="hero">
-                <div class="glow-orb"></div>
-                <h1>Get a <span class="highlight">Tailored Problem</span></h1>
-                <p>Enter your Codeforces handle and our ML pipeline will find the perfect problem targeting your weaknesses.</p>
-                <form id="problem-form" class="glass-card">
-                    <input type="text" id="gp-handle" placeholder="Enter Codeforces handle..." required autocomplete="off" />
-                    <button type="submit" id="gp-btn" class="primary-btn">
-                        <span>Get Problem <span class="icon">➔</span></span>
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <!-- AUTH SCREEN                                                     -->
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <div id="auth-screen" class="auth-screen">
+        <div class="auth-bg">
+            <div class="auth-gradient"></div>
+            <div class="floating-particles">
+                <span class="particle"></span><span class="particle"></span>
+                <span class="particle"></span><span class="particle"></span>
+                <span class="particle"></span><span class="particle"></span>
+                <span class="particle"></span><span class="particle"></span>
+                <span class="particle"></span><span class="particle"></span>
+                <span class="particle"></span><span class="particle"></span>
+            </div>
+        </div>
+
+        <div class="auth-container">
+            <div class="auth-brand">
+                <div class="brand-icon">
+                    <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="4" y="28" width="8" height="16" rx="2" fill="url(#g1)" opacity="0.7"/>
+                        <rect x="14" y="20" width="8" height="24" rx="2" fill="url(#g1)" opacity="0.85"/>
+                        <rect x="24" y="12" width="8" height="32" rx="2" fill="url(#g1)"/>
+                        <rect x="34" y="4" width="8" height="40" rx="2" fill="url(#g2)"/>
+                        <defs>
+                            <linearGradient id="g1" x1="0" y1="0" x2="48" y2="48"><stop stop-color="#3b82f6"/><stop offset="1" stop-color="#8b5cf6"/></linearGradient>
+                            <linearGradient id="g2" x1="0" y1="0" x2="48" y2="48"><stop stop-color="#6366f1"/><stop offset="1" stop-color="#a855f7"/></linearGradient>
+                        </defs>
+                    </svg>
+                </div>
+                <h1>Codeforces <span class="brand-highlight">Coach</span></h1>
+                <p class="brand-sub">AI-powered competitive programming training</p>
+            </div>
+
+            <div class="auth-card glass-panel">
+                <div class="auth-toggle" id="auth-toggle">
+                    <button class="toggle-btn active" data-mode="login" id="toggle-login">Sign In</button>
+                    <button class="toggle-btn" data-mode="register" id="toggle-register">Sign Up</button>
+                    <div class="toggle-slider" id="toggle-slider"></div>
+                </div>
+
+                <form id="login-form" class="auth-form active">
+                    <div class="form-group"><div class="input-wrapper">
+                        <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                        <input type="text" id="login-handle" placeholder="Codeforces Handle" required autocomplete="username" />
+                    </div></div>
+                    <div class="form-group"><div class="input-wrapper">
+                        <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                        <input type="password" id="login-password" placeholder="Password" required autocomplete="current-password" />
+                        <button type="button" class="toggle-password" data-target="login-password" aria-label="Toggle password visibility">
+                            <svg class="eye-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                            <svg class="eye-closed hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                        </button>
+                    </div></div>
+                    <button type="submit" class="auth-btn" id="login-btn">
+                        <span class="btn-text">Sign In</span>
+                        <span class="btn-loader hidden"><span class="spinner-sm"></span></span>
+                        <svg class="btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
                     </button>
+                    <div id="login-error" class="auth-error hidden"></div>
                 </form>
-                <div id="gp-loading" class="hidden loading-state">
-                    <div class="spinner"></div>
-                    <p>Analyzing profile & ranking problems with XGBoost...</p>
-                    <div class="pipeline-steps">
-                        <span class="step active" id="step-ml">ML Profile</span>
-                        <span class="step-arrow">→</span>
-                        <span class="step" id="step-retrieve">Retrieval</span>
-                        <span class="step-arrow">→</span>
-                        <span class="step" id="step-rank">Ranking</span>
-                        <span class="step-arrow">→</span>
-                        <span class="step" id="step-present">Presentation</span>
+
+                <form id="register-form" class="auth-form">
+                    <div class="form-group"><div class="input-wrapper">
+                        <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                        <input type="text" id="register-handle" placeholder="Codeforces Handle" required autocomplete="username" />
+                    </div></div>
+                    <div class="form-group"><div class="input-wrapper">
+                        <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                        <input type="password" id="register-password" placeholder="Password (min 4 chars)" required autocomplete="new-password" minlength="4"/>
+                        <button type="button" class="toggle-password" data-target="register-password" aria-label="Toggle password visibility">
+                            <svg class="eye-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                            <svg class="eye-closed hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                        </button>
+                    </div></div>
+                    <div class="form-group"><div class="input-wrapper">
+                        <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                        <input type="password" id="register-confirm" placeholder="Confirm Password" required autocomplete="new-password" />
+                    </div></div>
+                    <button type="submit" class="auth-btn" id="register-btn">
+                        <span class="btn-text">Create Account</span>
+                        <span class="btn-loader hidden"><span class="spinner-sm"></span></span>
+                        <svg class="btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                    </button>
+                    <div id="register-error" class="auth-error hidden"></div>
+                    <div id="register-success" class="auth-success hidden"></div>
+                </form>
+
+                <div class="auth-footer">
+                    <p id="auth-switch-msg">Don't have an account? <button class="link-btn" id="switch-to-register">Sign Up</button></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <!-- MAIN APP                                                       -->
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <div id="main-app" class="hidden">
+        <header class="app-header glass-panel">
+            <div class="logo">Codeforces <span class="highlight">Coach</span></div>
+            <nav class="tabs-nav">
+                <button class="nav-tab active" data-target="tab-problem" id="nav-practice">Practice</button>
+                <button class="nav-tab" data-target="tab-history" id="nav-history">History</button>
+                <button class="nav-tab" data-target="tab-leaderboard" id="nav-leaderboard">Leaderboard</button>
+                <button class="nav-tab" data-target="tab-profile" id="nav-analytics">Analytics</button>
+            </nav>
+            <div class="header-right">
+                <div class="active-handle">
+                    <span class="handle-badge">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                        <span id="top-handle-display">—</span>
+                    </span>
+                </div>
+                <button class="logout-btn" id="logout-btn" title="Logout">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                </button>
+            </div>
+        </header>
+
+        <main class="container">
+            <!-- ───────── PRACTICE TAB ───────── -->
+            <section id="tab-problem" class="tab-view active fade-in">
+                <div class="hero">
+                    <div class="glow-orb"></div>
+                    <h1>Get a <span class="highlight">Tailored Problem</span></h1>
+                    <p>Our ML pipeline analyzes your Codeforces profile and finds the perfect problem targeting your weaknesses.</p>
+                    <button type="button" id="gp-btn" class="primary-btn hero-btn">
+                        <span class="btn-content">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                            Generate Problem
+                        </span>
+                        <span class="icon">➔</span>
+                    </button>
+                    <div id="gp-loading" class="hidden loading-state">
+                        <div class="spinner"></div>
+                        <p>Analyzing profile & ranking problems with XGBoost...</p>
+                        <div class="pipeline-steps">
+                            <span class="step active" id="step-ml">ML Profile</span>
+                            <span class="step-arrow">→</span>
+                            <span class="step" id="step-retrieve">Retrieval</span>
+                            <span class="step-arrow">→</span>
+                            <span class="step" id="step-rank">Ranking</span>
+                            <span class="step-arrow">→</span>
+                            <span class="step" id="step-present">Presentation</span>
+                        </div>
+                    </div>
+                    <div id="gp-error" class="hidden error"></div>
+                </div>
+
+                <!-- Problem Result Card (dynamically populated) -->
+                <div id="gp-result-area" class="hidden fade-in delay-1"></div>
+            </section>
+
+            <!-- ───────── HISTORY TAB ───────── -->
+            <section id="tab-history" class="tab-view hidden fade-in">
+                <div class="history-header">
+                    <h2>Problem <span class="highlight">History</span></h2>
+                    <p class="history-subtitle">Your training log — track what you've practiced and mark completed problems.</p>
+                    <div class="history-stats" id="history-stats"></div>
+                </div>
+                <div id="history-list" class="history-list"></div>
+                <div id="history-empty" class="hidden empty-state">
+                    <div class="empty-icon">
+                        <svg viewBox="0 0 80 80" fill="none" stroke="currentColor" stroke-width="1.5" width="80" height="80">
+                            <rect x="12" y="8" width="56" height="64" rx="8" stroke="rgba(99,102,241,0.3)"/>
+                            <line x1="24" y1="24" x2="56" y2="24" stroke="rgba(99,102,241,0.2)"/>
+                            <line x1="24" y1="36" x2="48" y2="36" stroke="rgba(99,102,241,0.2)"/>
+                            <line x1="24" y1="48" x2="52" y2="48" stroke="rgba(99,102,241,0.2)"/>
+                            <circle cx="56" cy="56" r="16" fill="rgba(59,130,246,0.08)" stroke="rgba(59,130,246,0.3)"/>
+                            <path d="M52 56h8M56 52v8" stroke="rgba(59,130,246,0.5)" stroke-width="2"/>
+                        </svg>
+                    </div>
+                    <h3>No problems generated yet</h3>
+                    <p>Head to the <strong>Practice</strong> tab and generate your first problem!</p>
+                </div>
+            </section>
+
+            <!-- ───────── LEADERBOARD TAB ───────── -->
+            <section id="tab-leaderboard" class="tab-view hidden fade-in">
+                <div class="lb-wrapper">
+                    <div class="lb-header">
+                        <div class="lb-title-row">
+                            <div class="lb-trophy">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="36" height="36">
+                                    <path d="M8 21h8m-4-4v4m-5-8a5 5 0 0 1-3-4.5V4h4m8 4.5A5 5 0 0 1 13 13m0 0H11m2 0V4h4v4.5A5 5 0 0 1 13 13M7 4H5a1 1 0 0 0-1 1v2a3 3 0 0 0 3 3m10-6h2a1 1 0 0 1 1 1v2a3 3 0 0 1-3 3"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <h2>Leader<span class="highlight">board</span></h2>
+                                <p class="lb-subtitle">Ranked by AI-recommended problems solved · <code>score = avg_rating × log₂(n+1)</code></p>
+                            </div>
+                        </div>
+                        <div class="lb-search-wrap">
+                            <svg class="lb-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                            <input type="text" id="lb-search" class="lb-search-input" placeholder="Search users..." />
+                        </div>
+                    </div>
+
+                    <!-- Your rank card -->
+                    <div id="lb-my-rank" class="lb-my-rank hidden"></div>
+
+                    <!-- Top 3 podium -->
+                    <div id="lb-podium" class="lb-podium"></div>
+
+                    <!-- Full table -->
+                    <div id="lb-table-wrap" class="lb-table-wrap">
+                        <div id="lb-loading" class="hidden loading-state"><div class="spinner"></div></div>
+                        <table class="lb-table" id="lb-table">
+                            <thead><tr><th>Rank</th><th>User</th><th>Avg Rating</th><th>Solves</th><th>Score</th></tr></thead>
+                            <tbody id="lb-tbody"></tbody>
+                        </table>
+                    </div>
+
+                    <div id="lb-empty" class="hidden empty-state">
+                        <div class="empty-icon">
+                            <svg viewBox="0 0 80 80" fill="none" stroke="currentColor" stroke-width="1.5" width="80" height="80">
+                                <circle cx="40" cy="32" r="20" fill="rgba(59,130,246,0.06)" stroke="rgba(99,102,241,0.25)"/>
+                                <path d="M32 32l5 5 11-11" stroke="rgba(59,130,246,0.4)" stroke-width="2.5" fill="none"/>
+                                <rect x="16" y="56" width="48" height="6" rx="3" fill="rgba(99,102,241,0.1)" stroke="rgba(99,102,241,0.2)"/>
+                                <rect x="22" y="66" width="36" height="4" rx="2" fill="rgba(99,102,241,0.06)" stroke="rgba(99,102,241,0.12)"/>
+                            </svg>
+                        </div>
+                        <h3>No rankings yet</h3>
+                        <p>Complete AI-recommended problems to appear on the leaderboard!</p>
                     </div>
                 </div>
-                <div id="gp-error" class="hidden error"></div>
-            </div>
+            </section>
 
-            <!-- Result Area -->
-            <div id="gp-result-area" class="hidden result-view fade-in delay-1">
-                <div class="result-header">
-                    <h3>Recommended Practice Problem</h3>
-                    <div class="problem-meta">
-                        <span id="pb-rating" class="meta-tag"></span>
-                        <span id="pb-tags" class="meta-tag highlight-tag"></span>
-                    </div>
-                </div>
-                <div id="gp-content" class="markdown-body"></div>
-            </div>
-        </section>
+            <!-- ───────── ANALYTICS TAB ───────── -->
+            <section id="tab-profile" class="tab-view hidden fade-in">
+                 <div id="profile-setup" class="setup-notice fade-in">
+                     <div class="glow-orb"></div>
+                     <h2>Analyze <span class="highlight">Profile</span></h2>
+                     <p>View advanced statistics and AI archetype details for your Codeforces profile.</p>
+                     <button type="button" id="analyze-btn" class="primary-btn hero-btn">
+                         <span class="btn-content">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M21 12a9 9 0 1 1-9-9"/><path d="M21 3v6h-6"/></svg>
+                            Analyze My Profile
+                         </span>
+                     </button>
+                     <div id="profile-loading" class="hidden setup-loading"><div class="spinner"></div></div>
+                     <div id="profile-error" class="hidden error"></div>
+                 </div>
 
-        <!-- ANALYTICS TAB -->
-        <section id="tab-profile" class="tab-view hidden fade-in">
-             <div id="profile-setup" class="setup-notice fade-in">
-                 <div class="glow-orb"></div>
-                 <h2>Analyze <span class="highlight">Profile</span></h2>
-                 <p>Enter your handle to view advanced statistics and AI archetype details.</p>
-                 <form id="profile-handle-form" class="glass-card mini">
-                     <input type="text" id="profile-setup-handle" placeholder="Codeforces handle..." required />
-                     <button type="submit" class="primary-btn">Analyze Profile</button>
-                 </form>
-                 <div id="profile-loading" class="hidden setup-loading"><div class="spinner"></div></div>
-                 <div id="profile-error" class="hidden error"></div>
-             </div>
+                 <div id="profile-main" class="profile-layout hidden fade-in delay-1">
+                    <aside class="profile-card glass-panel fade-in">
+                        <div class="archetype-badge">Archetype <span id="profile-cluster"></span></div>
+                        <h3><span id="profile-handle-title"></span>'s Profile</h3>
+                        <div class="stats-grid">
+                            <div class="stat-box"><span class="label">Avg Solved Rating</span><span class="value" id="profile-rating"></span></div>
+                            <div class="stat-box"><span class="label">One-Shot Precision</span><span class="value" id="profile-oneshot"></span></div>
+                            <div class="stat-box"><span class="label">Tilt Speed</span><span class="value" id="profile-tilt"></span></div>
+                            <div class="stat-box"><span class="label">Abandonment</span><span class="value" id="profile-abandonment"></span></div>
+                        </div>
+                        <div class="domains">
+                            <div class="domain-box"><span class="label text-green">💪 Strengths</span><p id="profile-strengths"></p></div>
+                            <div class="domain-box"><span class="label text-red">⚠️ Weaknesses</span><p id="profile-weakness"></p></div>
+                        </div>
+                    </aside>
+                 </div>
+            </section>
+        </main>
+    </div>
 
-             <div id="profile-main" class="profile-layout hidden fade-in delay-1">
-                <aside class="profile-card glass-panel fade-in">
-                    <div class="archetype-badge">Archetype <span id="profile-cluster"></span></div>
-                    <h3><span id="profile-handle-title"></span>'s Profile</h3>
-                    <div class="stats-grid">
-                        <div class="stat-box">
-                            <span class="label">Avg Solved Rating</span>
-                            <span class="value" id="profile-rating"></span>
-                        </div>
-                        <div class="stat-box">
-                            <span class="label">One-Shot Precision</span>
-                            <span class="value" id="profile-oneshot"></span>
-                        </div>
-                        <div class="stat-box">
-                            <span class="label">Tilt Speed</span>
-                            <span class="value" id="profile-tilt"></span>
-                        </div>
-                        <div class="stat-box">
-                            <span class="label">Abandonment</span>
-                            <span class="value" id="profile-abandonment"></span>
-                        </div>
-                    </div>
-                    <div class="domains">
-                        <div class="domain-box">
-                            <span class="label text-green">💪 Strengths</span>
-                            <p id="profile-strengths"></p>
-                        </div>
-                        <div class="domain-box">
-                            <span class="label text-red">⚠️ Weaknesses</span>
-                            <p id="profile-weakness"></p>
-                        </div>
-                    </div>
-                </aside>
-             </div>
-        </section>
-    </main>
+    <div id="toast-container" class="toast-container"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="app.js"></script>

@@ -1,0 +1,1050 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Codeforces Coach — Project Overview</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+
+        :root {
+            --bg: #0f1117;
+            --surface: #1a1d27;
+            --surface-2: #232636;
+            --border: #2d3148;
+            --text: #e8eaf0;
+            --text-dim: #8b90a8;
+            --accent: #6366f1;
+            --accent-light: #818cf8;
+            --green: #22c55e;
+            --amber: #f59e0b;
+            --red: #ef4444;
+            --cyan: #06b6d4;
+            --purple: #a855f7;
+            --pink: #ec4899;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.7;
+            font-size: 15px;
+        }
+
+        /* ── Cover Page ────────────────────────────────── */
+        .cover {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 4rem 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cover::before {
+            content: '';
+            position: absolute;
+            width: 600px; height: 600px;
+            background: radial-gradient(circle, rgba(99,102,241,0.25), transparent 70%);
+            top: 20%; left: 50%; transform: translate(-50%, -50%);
+            border-radius: 50%;
+            filter: blur(80px);
+        }
+
+        .cover::after {
+            content: '';
+            position: absolute;
+            width: 400px; height: 400px;
+            background: radial-gradient(circle, rgba(168,85,247,0.15), transparent 70%);
+            bottom: 10%; right: 10%;
+            border-radius: 50%;
+            filter: blur(60px);
+        }
+
+        .cover h1 {
+            font-size: 4.5rem;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            line-height: 1.1;
+            position: relative;
+            z-index: 1;
+        }
+
+        .cover h1 span {
+            background: linear-gradient(135deg, var(--accent-light), var(--purple), var(--pink));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .cover .subtitle {
+            font-size: 1.3rem;
+            color: var(--text-dim);
+            margin-top: 1.5rem;
+            max-width: 700px;
+            position: relative;
+            z-index: 1;
+            line-height: 1.8;
+        }
+
+        .cover .meta-line {
+            margin-top: 3rem;
+            display: flex;
+            gap: 2rem;
+            flex-wrap: wrap;
+            justify-content: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .meta-chip {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            padding: 0.5rem 1.2rem;
+            border-radius: 999px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text-dim);
+        }
+
+        .meta-chip strong { color: var(--accent-light); }
+
+        /* ── Page Layout ───────────────────────────────── */
+        .page {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 4rem 2rem;
+        }
+
+        .page-break {
+            page-break-before: always;
+            border-top: 1px solid var(--border);
+            margin-top: 4rem;
+            padding-top: 4rem;
+        }
+
+        /* ── Section Headers ───────────────────────────── */
+        .section-label {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: var(--accent-light);
+            margin-bottom: 0.5rem;
+        }
+
+        h2 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            margin-bottom: 1rem;
+            line-height: 1.2;
+        }
+
+        h3 {
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-top: 2.5rem;
+            margin-bottom: 0.8rem;
+            color: var(--text);
+        }
+
+        h4 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-top: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: var(--accent-light);
+        }
+
+        p { margin-bottom: 1rem; color: var(--text); }
+        p.dim { color: var(--text-dim); }
+
+        strong { color: white; font-weight: 600; }
+
+        /* ── Phase Cards ───────────────────────────────── */
+        .phase-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2rem;
+            margin: 2rem 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .phase-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+        }
+
+        .phase-card.phase-1::before { background: linear-gradient(90deg, var(--cyan), var(--accent)); }
+        .phase-card.phase-2::before { background: linear-gradient(90deg, var(--green), var(--cyan)); }
+        .phase-card.phase-3::before { background: linear-gradient(90deg, var(--accent), var(--purple)); }
+        .phase-card.phase-4::before { background: linear-gradient(90deg, var(--purple), var(--pink)); }
+
+        .phase-number {
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            padding: 0.3rem 0.8rem;
+            border-radius: 999px;
+            width: fit-content;
+            margin-bottom: 1rem;
+        }
+
+        .phase-1 .phase-number { background: rgba(6,182,212,0.12); color: var(--cyan); }
+        .phase-2 .phase-number { background: rgba(34,197,94,0.12); color: var(--green); }
+        .phase-3 .phase-number { background: rgba(99,102,241,0.12); color: var(--accent-light); }
+        .phase-4 .phase-number { background: rgba(168,85,247,0.12); color: var(--purple); }
+
+        .phase-card h3 { margin-top: 0; font-size: 1.5rem; }
+
+        /* ── Feature Lists ─────────────────────────────── */
+        .feature-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .feature-list li {
+            padding: 0.6rem 0 0.6rem 1.8rem;
+            position: relative;
+            color: var(--text);
+            border-bottom: 1px solid rgba(45,49,72,0.5);
+        }
+
+        .feature-list li:last-child { border-bottom: none; }
+
+        .feature-list li::before {
+            content: '▸';
+            position: absolute;
+            left: 0;
+            color: var(--accent-light);
+            font-weight: 600;
+        }
+
+        /* ── Code Blocks ──────────────────────────────── */
+        .code-block {
+            background: #0d0f16;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            overflow-x: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.82rem;
+            line-height: 1.7;
+            color: #c9d1d9;
+        }
+
+        .code-block .comment { color: #6e7681; }
+        .code-block .keyword { color: #ff7b72; }
+        .code-block .string { color: #a5d6ff; }
+        .code-block .func { color: #d2a8ff; }
+        .code-block .number { color: #79c0ff; }
+
+        /* ── Tables ────────────────────────────────────── */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            font-size: 0.9rem;
+        }
+
+        thead th {
+            background: var(--surface-2);
+            color: var(--text-dim);
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.7rem;
+            letter-spacing: 0.1em;
+            padding: 0.8rem 1rem;
+            text-align: left;
+            border-bottom: 2px solid var(--border);
+        }
+
+        tbody td {
+            padding: 0.7rem 1rem;
+            border-bottom: 1px solid rgba(45,49,72,0.4);
+            vertical-align: top;
+        }
+
+        tbody tr:hover { background: rgba(99,102,241,0.04); }
+
+        .tag {
+            display: inline-block;
+            font-size: 0.7rem;
+            font-weight: 600;
+            padding: 0.15rem 0.5rem;
+            border-radius: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .tag-green { background: rgba(34,197,94,0.12); color: var(--green); }
+        .tag-amber { background: rgba(245,158,11,0.12); color: var(--amber); }
+        .tag-red { background: rgba(239,68,68,0.12); color: var(--red); }
+        .tag-cyan { background: rgba(6,182,212,0.12); color: var(--cyan); }
+        .tag-purple { background: rgba(168,85,247,0.12); color: var(--purple); }
+
+        /* ── Architecture Diagram ──────────────────────── */
+        .arch-diagram {
+            background: #0d0f16;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2rem;
+            margin: 2rem 0;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.78rem;
+            line-height: 1.8;
+            color: var(--text-dim);
+            overflow-x: auto;
+            white-space: pre;
+        }
+
+        /* ── Stat Cards ────────────────────────────────── */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .stat-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.2rem;
+            text-align: center;
+        }
+
+        .stat-card .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent-light), var(--purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-card .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-top: 0.3rem;
+        }
+
+        /* ── File Tree ─────────────────────────────────── */
+        .file-tree {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.82rem;
+            line-height: 2;
+            color: var(--text-dim);
+        }
+
+        .file-tree .dir { color: var(--accent-light); font-weight: 600; }
+        .file-tree .file { color: var(--text); }
+        .file-tree .note { color: var(--text-dim); font-style: italic; font-size: 0.75rem; }
+
+        /* ── Pipeline Flow ─────────────────────────────── */
+        .pipeline-flow {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin: 1.5rem 0;
+            padding: 1.5rem;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+        }
+
+        .flow-step {
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .flow-arrow {
+            color: var(--text-dim);
+            font-size: 1.2rem;
+        }
+
+        /* ── Callout Boxes ─────────────────────────────── */
+        .callout {
+            border-left: 3px solid;
+            padding: 1rem 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 0 8px 8px 0;
+            font-size: 0.9rem;
+        }
+
+        .callout-info {
+            border-color: var(--accent);
+            background: rgba(99,102,241,0.06);
+        }
+
+        .callout-warning {
+            border-color: var(--amber);
+            background: rgba(245,158,11,0.06);
+        }
+
+        .callout-success {
+            border-color: var(--green);
+            background: rgba(34,197,94,0.06);
+        }
+
+        .callout-label {
+            font-weight: 700;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 0.3rem;
+        }
+
+        .callout-info .callout-label { color: var(--accent-light); }
+        .callout-warning .callout-label { color: var(--amber); }
+        .callout-success .callout-label { color: var(--green); }
+
+        /* ── Dividers ──────────────────────────────────── */
+        hr {
+            border: none;
+            border-top: 1px solid var(--border);
+            margin: 3rem 0;
+        }
+
+        /* ── Print Styles ──────────────────────────────── */
+        @media print {
+            body { background: white; color: #1a1a2e; font-size: 11pt; }
+            .cover { min-height: auto; padding: 3rem 0; }
+            .cover::before, .cover::after { display: none; }
+            .cover h1 { font-size: 2.8rem; }
+            .cover h1 span { -webkit-text-fill-color: #4338ca; }
+            .phase-card { border: 1px solid #ddd; box-shadow: none; }
+            .code-block, .arch-diagram { background: #f8f9fa; color: #333; border: 1px solid #ddd; }
+            table { font-size: 9pt; }
+            thead th { background: #f0f0f0; color: #333; }
+            .stat-card { border: 1px solid #ddd; }
+            .stat-card .stat-value { -webkit-text-fill-color: #4338ca; }
+            .callout { background: #f8f9fa !important; }
+            .page-break { page-break-before: always; border: none; margin-top: 0; padding-top: 2rem; }
+            .meta-chip { border: 1px solid #ddd; }
+            p, li, td { color: #333; }
+            strong { color: #111; }
+            h2, h3, h4 { color: #111; }
+            .section-label { color: #4338ca; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════════════════════ -->
+<!-- COVER PAGE                                                       -->
+<!-- ══════════════════════════════════════════════════════════════════ -->
+<div class="cover">
+    <h1>Codeforces <span>Coach</span></h1>
+    <p class="subtitle">
+        An AI-powered competitive programming training system that combines 
+        <strong>behavioral ML profiling</strong>, <strong>RAG-based retrieval</strong>, 
+        and <strong>XGBoost re-ranking</strong> to deliver hyper-personalized 
+        practice recommendations through a persona-driven LLM coach.
+    </p>
+    <div class="meta-line">
+        <span class="meta-chip"><strong>ML</strong> &nbsp;GMM Clustering + XGBoost</span>
+        <span class="meta-chip"><strong>LLM</strong> &nbsp;Google Gemini 2.5 Flash</span>
+        <span class="meta-chip"><strong>Vector DB</strong> &nbsp;ChromaDB</span>
+        <span class="meta-chip"><strong>Backend</strong> &nbsp;FastAPI</span>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════ -->
+<!-- TABLE OF CONTENTS                                                -->
+<!-- ══════════════════════════════════════════════════════════════════ -->
+<div class="page">
+    <div class="section-label">Table of Contents</div>
+    <h2>Overview</h2>
+    <p class="dim">A complete technical walkthrough of the system's four-phase architecture.</p>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Section</th>
+                <th>Phase</th>
+                <th>Key Technology</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>1. System Architecture</strong></td>
+                <td>—</td>
+                <td>High-level design & data flow</td>
+            </tr>
+            <tr>
+                <td><strong>2. Data Ingestion & Vector Storage</strong></td>
+                <td><span class="tag tag-cyan">Phase 1</span></td>
+                <td>Codeforces API, PostgreSQL, ChromaDB</td>
+            </tr>
+            <tr>
+                <td><strong>3. Psychological Profiling</strong></td>
+                <td><span class="tag tag-green">Phase 2</span></td>
+                <td>Pandas Feature Engineering, GMM</td>
+            </tr>
+            <tr>
+                <td><strong>4. Two-Stage Recommender</strong></td>
+                <td><span class="tag tag-purple">Phase 3</span></td>
+                <td>ChromaDB Retrieval, XGBoost V2</td>
+            </tr>
+            <tr>
+                <td><strong>5. Pedagogical Presentation</strong></td>
+                <td><span class="tag tag-amber">Phase 4</span></td>
+                <td>Gemini LLM, Persona System</td>
+            </tr>
+            <tr>
+                <td><strong>6. Project Structure & API</strong></td>
+                <td>—</td>
+                <td>File map, endpoints, tech stack</td>
+            </tr>
+            <tr>
+                <td><strong>7. Persona Catalog</strong></td>
+                <td>—</td>
+                <td>All 10 GMM archetypes</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="stats-row">
+        <div class="stat-card">
+            <div class="stat-value">16</div>
+            <div class="stat-label">User Features</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">20</div>
+            <div class="stat-label">XGBoost Features</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">10</div>
+            <div class="stat-label">Persona Archetypes</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">5</div>
+            <div class="stat-label">Pipeline Stages</div>
+        </div>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════ -->
+<!-- SECTION 1: SYSTEM ARCHITECTURE                                   -->
+<!-- ══════════════════════════════════════════════════════════════════ -->
+<div class="page page-break">
+    <div class="section-label">Section 1</div>
+    <h2>System Architecture</h2>
+    <p>When a user enters their Codeforces handle and clicks <strong>"Get Problem"</strong>, the system executes a fully automated, five-step pipeline that bridges raw API data to a personalized coaching experience.</p>
+
+    <div class="pipeline-flow">
+        <span class="flow-step" style="color:var(--cyan)">① CF API Scraping</span>
+        <span class="flow-arrow">→</span>
+        <span class="flow-step" style="color:var(--green)">② Feature Engineering</span>
+        <span class="flow-arrow">→</span>
+        <span class="flow-step" style="color:var(--green)">③ GMM Classification</span>
+        <span class="flow-arrow">→</span>
+        <span class="flow-step" style="color:var(--accent-light)">④ ChromaDB Retrieval</span>
+        <span class="flow-arrow">→</span>
+        <span class="flow-step" style="color:var(--purple)">⑤ XGBoost Ranking</span>
+        <span class="flow-arrow">→</span>
+        <span class="flow-step" style="color:var(--pink)">⑥ LLM Presentation</span>
+    </div>
+
+    <div class="arch-diagram">
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                              FRONTEND (HTML/JS)                             │
+│   ┌──────────────┐    ┌──────────────┐                                      │
+│   │  Practice Tab │    │ Analytics Tab │   ← Two-tab glassmorphism UI       │
+│   │  (CF Handle)  │    │  (CF Handle)  │                                     │
+│   └──────┬───────┘    └──────┬───────┘                                      │
+│          │ POST /api/get_problem  │ POST /api/analyze                        │
+└──────────┼───────────────────────┼──────────────────────────────────────────┘
+           ▼                       ▼
+┌──────────────────────────────────────────────┐
+│              FastAPI  (main.py)               │
+│  Routes: /api/analyze  │  /api/get_problem    │
+└──────────┬─────────────┴─────────┬───────────┘
+           ▼                       │
+┌──────────────────────┐           │
+│   ML Engine          │           │
+│   (ml_engine.py)     │           │
+│                      │           │
+│  CF API → Pandas     │           │
+│  → Feature Eng.      │           │
+│  → StandardScaler    │           │
+│  → GMM Predict       │           │
+│  → Persona Load      │           │
+│  → Attempted List    │           │
+└──────────┬───────────┘           │
+           │  user_profile dict    │
+           ├───────────────────────┘
+           ▼
+┌──────────────────────────────────────────────┐
+│          Chat Engine  (chat_engine.py)        │
+│                                              │
+│  Step 1: Gemini Query Builder (JSON output)  │
+│              ▼                               │
+│  Step 2: ChromaDB Semantic Retrieval (n=50)  │
+│              ▼                               │
+│  Step 3: Negative Pruning (filter attempted) │
+│              ▼                               │
+│  Step 4: XGBoost V2 Re-Ranking (20 features)│
+│              ▼                               │
+│  Step 5: Gemini Presentation (Persona LLM)   │
+└──────────────────────────────────────────────┘</div>
+
+    <div class="callout callout-info">
+        <div class="callout-label">Design Decision</div>
+        The system uses <strong>no intent routing</strong>. Unlike chatbot architectures that classify user messages into intents, this system has a dedicated UI tab for problem retrieval. The user's action (clicking "Get Problem") <em>is</em> the intent. This eliminates an entire LLM call and reduces latency.
+    </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════ -->
+<!-- SECTION 2: PHASE 1 — DATA INGESTION                             -->
+<!-- ══════════════════════════════════════════════════════════════════ -->
+<div class="page page-break">
+    <div class="phase-card phase-1">
+        <div class="phase-number">Phase 1 — Foundation</div>
+        <h3>Data Ingestion & Vector Storage</h3>
+        <p>Before the AI can recommend anything, it needs a deep understanding of both the user and the available problem space. This phase builds the knowledge base.</p>
+
+        <h4>Codeforces API Integration</h4>
+        <p>The data pipeline (<code>pipeline.py</code>) hits the Codeforces <code>problemset.problems</code> endpoint to fetch every problem on the platform along with its solve statistics. For each problem, it extracts:</p>
+        <ul class="feature-list">
+            <li><strong>problem_id</strong> — Unique identifier (e.g., <code>1555A</code>)</li>
+            <li><strong>rating</strong> — Official difficulty rating (800–3500)</li>
+            <li><strong>tags</strong> — Algorithmic categories (dp, graphs, math, etc.)</li>
+            <li><strong>solved_count</strong> — Global number of successful submissions</li>
+        </ul>
+
+        <h4>PostgreSQL Storage</h4>
+        <p>All problems are upserted into a PostgreSQL database via SQLAlchemy models. The pipeline then generates a <strong>natural-language description</strong> for each problem using template-based text generation. Example:</p>
+        <div class="code-block">
+<span class="string">"The problem 'Watermelon' (ID: 4A) is a beginner-friendly competitive
+programming challenge with an official difficulty rating of 800.
+It focuses heavily on the following algorithmic concepts: math, brute force.
+With over 180,000 successful submissions, this is a highly popular problem,
+making it an excellent choice for practicing math, brute force logic."</span>
+        </div>
+
+        <h4>ChromaDB Vector Store</h4>
+        <p>These descriptions are embedded using <strong>SentenceTransformers</strong> (<code>all-MiniLM-L6-v2</code>) and stored in ChromaDB with HNSW cosine similarity indexing. This transforms the static problem database into a <strong>semantically searchable knowledge base</strong>.</p>
+
+        <div class="callout callout-success">
+            <div class="callout-label">Key Advantage</div>
+            By embedding rich descriptions rather than raw tags, the semantic search can understand conceptual queries like <em>"tree traversal with backtracking"</em> even if no problem has that exact tag combination.
+        </div>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════ -->
+<!-- SECTION 3: PHASE 2 — ML PROFILING                               -->
+<!-- ══════════════════════════════════════════════════════════════════ -->
+<div class="page page-break">
+    <div class="phase-card phase-2">
+        <div class="phase-number">Phase 2 — Intelligence</div>
+        <h3>Psychological Profiling</h3>
+        <p>Instead of just looking at <em>what</em> a user solved, the system analyzes <em>how</em> they code. It translates raw JSON submission logs into a behavioral profile using 16 engineered features.</p>
+
+        <h4>Data Acquisition</h4>
+        <p>The ML Engine (<code>ml_engine.py</code>) makes two Codeforces API calls per user:</p>
+        <ul class="feature-list">
+            <li><strong>user.status</strong> — Complete submission history (every attempt, verdict, timestamp)</li>
+            <li><strong>user.info</strong> — Current live rating</li>
+        </ul>
+        <p>Submissions are parsed into a Pandas DataFrame sorted by <code>problem_id</code> and <code>creation_time</code>, forming a timeline of every coding decision the user has ever made.</p>
+
+        <h4>Feature Engineering (16 Features)</h4>
+
+        <table>
+            <thead>
+                <tr><th>Category</th><th>Feature</th><th>Calculation</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td rowspan="4"><span class="tag tag-cyan">Base Metrics</span></td>
+                    <td><code>accuracy</code></td>
+                    <td>OK verdicts / total submissions</td>
+                </tr>
+                <tr>
+                    <td><code>optimization_struggle</code></td>
+                    <td>TLE verdicts / total (measures Big-O weakness)</td>
+                </tr>
+                <tr>
+                    <td><code>avg_solved_rating</code></td>
+                    <td>Mean difficulty of all successfully solved problems</td>
+                </tr>
+                <tr>
+                    <td><code>abandonment_rate</code></td>
+                    <td>(attempted − solved) / attempted unique problems</td>
+                </tr>
+                <tr>
+                    <td rowspan="4"><span class="tag tag-green">Temporal & Grit</span></td>
+                    <td><code>one_shot_rate</code></td>
+                    <td>% of problems solved on the first submission attempt</td>
+                </tr>
+                <tr>
+                    <td><code>tilt_speed_seconds</code></td>
+                    <td>Avg time between rapid consecutive failures (&lt;15min)</td>
+                </tr>
+                <tr>
+                    <td><code>recent_win_rate</code></td>
+                    <td>Win rate over the last 10 submissions (momentum)</td>
+                </tr>
+                <tr>
+                    <td><code>persistence_index</code></td>
+                    <td>Avg number of attempts per unique problem</td>
+                </tr>
+                <tr>
+                    <td rowspan="8"><span class="tag tag-purple">Domain Mapping</span></td>
+                    <td><code>math_pref</code></td>
+                    <td>% of subs tagged math|number theory|combinatorics</td>
+                </tr>
+                <tr><td><code>dp_pref</code></td><td>% with DP tag</td></tr>
+                <tr><td><code>graph_pref</code></td><td>% with graphs|trees|dfs</td></tr>
+                <tr><td><code>brute_pref</code></td><td>% with brute force|implementation|hashing</td></tr>
+                <tr><td><code>greedy_pref</code></td><td>% with greedy|two pointers|sortings</td></tr>
+                <tr><td><code>binary_pref</code></td><td>% with binary search</td></tr>
+                <tr><td><code>cons_pref</code></td><td>% with constructive|strings|interactive</td></tr>
+                <tr><td><code>datastruct_pref</code></td><td>% with data structures|dsu</td></tr>
+            </tbody>
+        </table>
+
+        <h4>Unsupervised Persona Clustering (GMM)</h4>
+        <p>The 14 most discriminative features are <strong>StandardScaler-normalized</strong> and fed into a pre-trained <strong>Gaussian Mixture Model</strong> with 10 components. The GMM outputs:</p>
+        <ul class="feature-list">
+            <li>A <strong>cluster assignment</strong> (0–9) representing the user's behavioral archetype</li>
+            <li>A <strong>probability vector</strong> quantifying classification confidence</li>
+            <li>A <strong>persona-specific system prompt</strong> loaded from <code>persona_prompts.py</code></li>
+        </ul>
+
+        <h4>The Negative Filter</h4>
+        <p>Finally, the engine compiles a strict <strong>set of every <code>problem_id</code></strong> the user has ever submitted code for. This set is passed to the recommender to ensure they <strong>never receive a duplicate</strong>.</p>
+
+        <div class="callout callout-warning">
+            <div class="callout-label">Why GMM over K-Means?</div>
+            GMM provides <strong>soft clustering</strong> — it returns probabilities across all 10 archetypes, not a hard label. This means a user who is 60% "Methodical Optimizer" and 30% "Solid Specialist" gets a nuanced system prompt, and the confidence score is exposed in the Analytics dashboard.
+        </div>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════ -->
+<!-- SECTION 4: PHASE 3 — RECOMMENDER                                -->
+<!-- ══════════════════════════════════════════════════════════════════ -->
+<div class="page page-break">
+    <div class="phase-card phase-3">
+        <div class="phase-number">Phase 3 — Core Engine</div>
+        <h3>The Two-Stage Recommender</h3>
+        <p>This is the absolute core of the architecture. When a user requests a problem, the system executes a highly optimized retrieval and ranking pipeline in <code>chat_engine.py</code>.</p>
+
+        <h4>Stage 1: LLM Query Builder + Broad Retrieval</h4>
+        <p>The engine calculates a <strong>target rating</strong> (average of the user's historical solved rating and current live rating) and identifies their <strong>weakest algorithmic domain</strong> from the ML profile.</p>
+        <p>A lightweight <strong>Gemini 2.5 Flash</strong> call receives the user profile and outputs a strict JSON search query:</p>
+        <div class="code-block">
+{
+    <span class="string">"search_query"</span>: <span class="string">"dynamic programming state transition optimization"</span>,
+    <span class="string">"min_rating"</span>: <span class="number">1100</span>,
+    <span class="string">"max_rating"</span>: <span class="number">1500</span>
+}
+        </div>
+        <p>ChromaDB executes this query with metadata filtering (<code>$gte</code>/<code>$lte</code> on rating) and <strong>over-fetches 50 candidate problems</strong> to give the ranker maximum choice.</p>
+
+        <div class="callout callout-info">
+            <div class="callout-label">Graceful Fallback</div>
+            If the Gemini API is unavailable (503/429), the system automatically falls back to the user's <strong>weakest domain from the ML profile</strong> as the search query — no user-facing error.
+        </div>
+
+        <h4>Stage 2: Negative Pruning</h4>
+        <p>The 50 candidates are cross-referenced against the user's <code>attempted_problems</code> set compiled in Phase 2. Any problem the user has <strong>ever submitted code for</strong> — even failed attempts — is instantly dropped. This guarantees freshness.</p>
+
+        <h4>Stage 3: Dynamic Feature Assembly</h4>
+        <p>For each surviving candidate, the engine dynamically constructs a <strong>20-feature vector</strong> in real-time:</p>
+
+        <table>
+            <thead>
+                <tr><th>#</th><th>Feature Group</th><th>Features (Count)</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>1–8</td><td><span class="tag tag-cyan">User Metrics</span></td><td>accuracy, optimization_struggle, avg_solved_rating, abandonment_rate, one_shot_rate, tilt_speed, recent_win_rate, persistence_index</td></tr>
+                <tr><td>9–11</td><td><span class="tag tag-green">Problem Stats</span></td><td>problem_rating, global_solve_rate, avg_attempts_per_user</td></tr>
+                <tr><td>12</td><td><span class="tag tag-amber">Cross Feature</span></td><td>rating_delta = problem_rating − user_avg_solved</td></tr>
+                <tr><td>13–20</td><td><span class="tag tag-purple">Tag Synergy</span></td><td>is_dp × dp_pref, is_math × math_pref, is_graph × graph_pref, is_brute × brute_pref, is_greedy × greedy_pref, is_binary × binary_pref, is_cons × cons_pref, is_datastruct × datastruct_pref</td></tr>
+            </tbody>
+        </table>
+
+        <div class="callout callout-info">
+            <div class="callout-label">Tag Synergy Explained</div>
+            Each synergy feature multiplies a binary "problem has this tag" flag (0 or 1) by the user's continuous proficiency score in that domain (0.0–1.0). A high synergy score means the problem aligns with the user's <em>existing</em> strengths; a low score means it targets a weakness — both are useful signals for the ranker.
+        </div>
+
+        <h4>Stage 4: XGBoost V2 Re-Ranking</h4>
+        <p>The assembled DataFrame is fed into a pre-trained <strong>XGBoost Classifier</strong> (<code>xgboost_ranker_v2.json</code>). The model predicts the <strong>probability that the user will successfully solve each problem</strong> (P(y=1)).</p>
+        <p>Problems are sorted by this confidence score in descending order. The <strong>highest-ranked problem</strong> is selected as the final recommendation.</p>
+
+        <div class="code-block">
+<span class="comment"># Predict probability of success for all candidates</span>
+probabilities = ranker_model.<span class="func">predict_proba</span>(df_scoring)[:, <span class="number">1</span>]
+
+<span class="comment"># Sort by confidence and select the winner</span>
+ranked = <span class="func">sorted</span>(candidates, key=<span class="keyword">lambda</span> x: x[<span class="string">"xgb_score"</span>], reverse=<span class="keyword">True</span>)
+winning_problem = ranked[<span class="number">0</span>]
+        </div>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════ -->
+<!-- SECTION 5: PHASE 4 — PRESENTATION                               -->
+<!-- ══════════════════════════════════════════════════════════════════ -->
+<div class="page page-break">
+    <div class="phase-card phase-4">
+        <div class="phase-number">Phase 4 — The Voice</div>
+        <h3>Pedagogical Presentation</h3>
+        <p>Data science is only as good as its presentation. The final step bridges the gap between cold math and human mentorship.</p>
+
+        <h4>Contextual LLM Injection</h4>
+        <p>The winning problem's full context — title, rating, tags, and raw description text — is injected into a final Gemini prompt alongside the user's <strong>persona-specific system prompt</strong> from Phase 2.</p>
+
+        <div class="code-block">
+<span class="keyword">presentation_prompt</span> = f<span class="string">"""
+{system_prompt}
+
+You are presenting this freshly retrieved Codeforces problem to the user:
+{context_str}
+
+INSTRUCTION: Introduce this problem perfectly in your persona's character.
+Explain exactly WHY you chose this specific problem based on their ML
+profile weaknesses. Do not give them the solution. Be concise and format
+nicely with markdown.
+"""</span>
+        </div>
+
+        <h4>Persona Execution</h4>
+        <p>The LLM doesn't just present the problem — it <em>coaches</em>. Using the persona identified by the GMM, it:</p>
+        <ul class="feature-list">
+            <li>Introduces the problem with appropriate enthusiasm (or strictness)</li>
+            <li>Explains <strong>why</strong> this specific problem was selected based on their weaknesses</li>
+            <li>Provides strategic encouragement tailored to their learning style</li>
+            <li>Never reveals the solution — it's a coach, not a tutor</li>
+        </ul>
+
+        <h4>Graceful Degradation</h4>
+        <p>If the Gemini API fails during presentation, the system falls back to a <strong>raw markdown rendering</strong> of the problem details directly from the database — the user always gets their recommendation.</p>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════ -->
+<!-- SECTION 6: PROJECT STRUCTURE & API                               -->
+<!-- ══════════════════════════════════════════════════════════════════ -->
+<div class="page page-break">
+    <div class="section-label">Section 6</div>
+    <h2>Project Structure & API</h2>
+
+    <h3>File Map</h3>
+    <div class="code-block file-tree">
+<span class="dir">cf_coach/</span>
+├── <span class="dir">backend/</span>
+│   ├── <span class="file">main.py</span>              <span class="note">← FastAPI app, 2 endpoints</span>
+│   ├── <span class="file">ml_engine.py</span>         <span class="note">← CF API → Feature Eng → GMM</span>
+│   ├── <span class="file">chat_engine.py</span>       <span class="note">← Query → Retrieve → Rank → Present</span>
+│   ├── <span class="file">config.py</span>            <span class="note">← Env config loader (dotenv)</span>
+│   ├── <span class="file">persona_prompts.py</span>   <span class="note">← 10 archetype definitions</span>
+│   ├── <span class="file">pipeline.py</span>          <span class="note">← Data ingestion (CF API → PG → ChromaDB)</span>
+│   ├── <span class="file">models.py</span>            <span class="note">← SQLAlchemy ORM models</span>
+│   ├── <span class="file">test_pipeline.py</span>     <span class="note">← End-to-end CLI tester</span>
+│   ├── <span class="file">requirements.txt</span>
+│   ├── <span class="dir">chroma_data/</span>         <span class="note">← ChromaDB persistent store</span>
+│   └── <span class="dir">static/</span>
+│       ├── <span class="file">index.html</span>       <span class="note">← Two-tab UI (Practice + Analytics)</span>
+│       ├── <span class="file">style.css</span>        <span class="note">← Glassmorphism dark theme</span>
+│       └── <span class="file">app.js</span>           <span class="note">← Frontend logic + pipeline animations</span>
+│
+├── <span class="dir">train/</span>
+│   ├── <span class="file">data_extraction.ipynb</span>    <span class="note">← Bulk CF data scraping</span>
+│   ├── <span class="file">feature_engg.ipynb</span>       <span class="note">← Feature engineering & EDA</span>
+│   ├── <span class="file">gmm_train.ipynb</span>          <span class="note">← GMM clustering training</span>
+│   ├── <span class="file">t_rank.ipynb</span>             <span class="note">← XGBoost V2 training</span>
+│   ├── <span class="file">persona_gmm_model.pkl</span>    <span class="note">← Trained GMM weights</span>
+│   ├── <span class="file">persona_scaler.pkl</span>       <span class="note">← StandardScaler</span>
+│   └── <span class="file">xgboost_ranker_v2.json</span>   <span class="note">← XGBoost V2 weights (~15MB)</span>
+│
+├── <span class="file">.gitignore</span>
+└── <span class="file">README.md</span>
+    </div>
+
+    <h3>API Endpoints</h3>
+    <table>
+        <thead>
+            <tr><th>Method</th><th>Endpoint</th><th>Input</th><th>Pipeline</th><th>Output</th></tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><span class="tag tag-green">POST</span></td>
+                <td><code>/api/analyze</code></td>
+                <td><code>{"handle": "..."}</code></td>
+                <td>ml_engine only</td>
+                <td>Full ML profile + persona + metrics</td>
+            </tr>
+            <tr>
+                <td><span class="tag tag-purple">POST</span></td>
+                <td><code>/api/get_problem</code></td>
+                <td><code>{"handle": "..."}</code></td>
+                <td>ml_engine → chat_engine (full pipeline)</td>
+                <td>LLM message + problem details + profile</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h3>Technology Stack</h3>
+    <table>
+        <thead>
+            <tr><th>Layer</th><th>Technology</th><th>Purpose</th></tr>
+        </thead>
+        <tbody>
+            <tr><td>Backend API</td><td>FastAPI + Uvicorn</td><td>HTTP server, request validation</td></tr>
+            <tr><td>ML Pipeline</td><td>scikit-learn (GMM) + XGBoost</td><td>User clustering + problem ranking</td></tr>
+            <tr><td>Data Processing</td><td>Pandas + NumPy</td><td>Feature engineering</td></tr>
+            <tr><td>Vector Database</td><td>ChromaDB + SentenceTransformers</td><td>Semantic retrieval (all-MiniLM-L6-v2)</td></tr>
+            <tr><td>Relational DB</td><td>PostgreSQL + SQLAlchemy</td><td>Problem storage & metadata</td></tr>
+            <tr><td>LLM</td><td>Google Gemini 2.5 Flash</td><td>Query building + persona presentation</td></tr>
+            <tr><td>Frontend</td><td>Vanilla HTML/CSS/JS</td><td>Two-tab glassmorphism interface</td></tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════ -->
+<!-- SECTION 7: PERSONA CATALOG                                       -->
+<!-- ══════════════════════════════════════════════════════════════════ -->
+<div class="page page-break">
+    <div class="section-label">Section 7</div>
+    <h2>Persona Catalog</h2>
+    <p>The GMM clusters users into one of 10 behavioral archetypes. Each archetype has a unique coaching personality, strategy, and set of problem selection biases.</p>
+
+    <table>
+        <thead>
+            <tr><th>ID</th><th>Name</th><th>Rating</th><th>Key Trait</th><th>Coaching Strategy</th></tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>0</strong></td>
+                <td>The Cautious Beginner</td>
+                <td>~1090</td>
+                <td>High accuracy, weak DS</td>
+                <td>Gently introduce O(N log N) and data structures</td>
+            </tr>
+            <tr>
+                <td><strong>1</strong></td>
+                <td>The Impatient Novice</td>
+                <td>~1170</td>
+                <td>Greedy-reliant, 35% quit</td>
+                <td>Enforce rigorous mathematical proof before coding</td>
+            </tr>
+            <tr>
+                <td><strong>2</strong></td>
+                <td>The Persistent Grinder</td>
+                <td>~970</td>
+                <td>Great grit, lacks theory</td>
+                <td>Praise + deep conceptual algorithm explanations</td>
+            </tr>
+            <tr>
+                <td><strong>3</strong></td>
+                <td>The Fickle Advanced</td>
+                <td>~1560</td>
+                <td>Strong skills, 45% abandon</td>
+                <td>Break problems into micro-tasks, build resilience</td>
+            </tr>
+            <tr>
+                <td><strong>4</strong></td>
+                <td>The Stubborn Graph Hacker</td>
+                <td>~1665</td>
+                <td>Graph expert, TLE issues</td>
+                <td>Enforce Big-O optimization before debugging</td>
+            </tr>
+            <tr>
+                <td><strong>5</strong></td>
+                <td>The Comfort Zone Camper</td>
+                <td>~880</td>
+                <td>Pads stats with easy</td>
+                <td>Force progressive overload, refuse easier problems</td>
+            </tr>
+            <tr>
+                <td><strong>6</strong></td>
+                <td>The Methodical Optimizer</td>
+                <td>~1190</td>
+                <td>Disciplined, strong BS</td>
+                <td>Bridge to "Binary Search on Answer" paradigms</td>
+            </tr>
+            <tr>
+                <td><strong>7</strong></td>
+                <td>The Solid Specialist</td>
+                <td>~1420</td>
+                <td>DP & Graph focused</td>
+                <td>Peer-level: focus on DP state transitions</td>
+            </tr>
+            <tr>
+                <td><strong>8</strong></td>
+                <td>The Advanced Precisionist</td>
+                <td>~1560</td>
+                <td>One-shot precision</td>
+                <td>Multi-tag challenges, space complexity optimization</td>
+            </tr>
+            <tr>
+                <td><strong>9</strong></td>
+                <td>The Frustrated Flounderer</td>
+                <td>~980</td>
+                <td>Guesses often, tilts fast</td>
+                <td>De-escalate, rebuild confidence with easy problems</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="callout callout-success">
+        <div class="callout-label">Why Persona-Driven Coaching Matters</div>
+        A user classified as <strong>"The Frustrated Flounderer"</strong> needs empathy and easy wins. Giving them the same 1600-rated DP problem as <strong>"The Advanced Precisionist"</strong> would be counterproductive. The persona system ensures the <em>same pipeline</em> produces radically different outputs based on individual psychology.
+    </div>
+
+    <hr>
+
+    <h3>End-to-End Example</h3>
+    <p>A user with handle <code>nishchay351</code> submits their handle:</p>
+
+    <div class="pipeline-flow">
+        <span class="flow-step" style="color:var(--cyan)">① Scrape 847 submissions</span>
+        <span class="flow-arrow">→</span>
+        <span class="flow-step" style="color:var(--green)">② 16 features computed</span>
+        <span class="flow-arrow">→</span>
+        <span class="flow-step" style="color:var(--green)">③ GMM → Cluster 6</span>
+        <span class="flow-arrow">→</span>
+        <span class="flow-step" style="color:var(--accent-light)">④ 50 candidates fetched</span>
+        <span class="flow-arrow">→</span>
+        <span class="flow-step" style="color:var(--purple)">⑤ XGBoost → Top pick (0.43)</span>
+        <span class="flow-arrow">→</span>
+        <span class="flow-step" style="color:var(--pink)">⑥ Coach presents problem</span>
+    </div>
+
+    <div class="code-block">
+<span class="comment"># Terminal Output</span>
+[+] XGBoost selected <span class="string">Recursive Queries</span> (Confidence Score: <span class="number">0.430</span>)
+INFO:     127.0.0.1:50980 - <span class="string">"POST /api/get_problem HTTP/1.1"</span> <span class="number">200</span> OK
+    </div>
+
+</div>
+
+</body>
+</html>
